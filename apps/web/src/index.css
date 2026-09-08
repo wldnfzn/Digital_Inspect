@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .material-symbols-outlined.fill {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+@media print {
+  body:has(#printable-report) * {
+    visibility: hidden;
+  }
+  #printable-report, #printable-report * {
+    visibility: visible;
+  }
+  #printable-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    height: 296mm;
+    padding: 1cm 1.5cm 1.5cm 1.5cm;
+    box-sizing: border-box;
+    margin: 0;
+    overflow: hidden;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  /* Reset all scrolling and fixed elements in the ancestors of printable-report */
+  body, html {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  .fixed {
+    position: static !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+  
+  .max-h-\[90vh\] {
+    max-height: none !important;
+  }
+
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+  
+  .overflow-y-auto {
+    overflow: visible !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

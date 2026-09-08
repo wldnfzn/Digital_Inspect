@@ -1,0 +1,2 @@
+import sql from './src/lib/db';  
+sql.unsafe('DELETE FROM forklift_inspection_scores').then(()=>sql.unsafe('DELETE FROM forklift_inspections')).then(()=>sql.unsafe('DELETE FROM battery_service_reports')).then(()=>sql.unsafe('DELETE FROM inspection_tasks')).then(()=>sql.unsafe('DELETE FROM forklifts')).then(()=>sql.unsafe('DELETE FROM batteries')).then(()=>sql.unsafe('DELETE FROM customers')).then(()=>console.log('WIPED')).then(()=>process.exit(0));  
