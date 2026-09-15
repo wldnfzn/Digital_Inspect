@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: digital-inspect-api
+    env: node
+    buildCommand: cd apps/api && npm install && npm run build
+    startCommand: cd apps/api && npm start
+    envVars:
+      - key: DATABASE_URL
+        value: "postgresql://digital_inspect_owner:EaC3nQ5LkxBf@ep-curly-recipe-a1m4d6s2.ap-southeast-1.aws.neon.tech/digital_inspect?sslmode=require"
+      - key: JWT_SECRET
+        value: "digital_inspect_super_secret_jwt_key_2026"
