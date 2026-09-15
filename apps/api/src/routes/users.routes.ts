@@ -79,14 +79,14 @@ usersRoutes.put('/:id', roleGuard(['SUPER_ADMIN']), async (c) => {
       const password_hash = await bcrypt.hash(password, salt);
       query = sql`
         UPDATE users 
-        SET full_name = ${full_name}, email = ${email}, role = ${role}, is_active = ${is_active}, password_hash = ${password_hash}
+        SET full_name = ${full_name ?? null}, email = ${email ?? null}, role = ${role ?? null}, is_active = ${is_active ?? false}, password_hash = ${password_hash}
         WHERE id = ${id}
         RETURNING id, full_name, email, role, is_active
       `;
     } else {
       query = sql`
         UPDATE users 
-        SET full_name = ${full_name}, email = ${email}, role = ${role}, is_active = ${is_active}
+        SET full_name = ${full_name ?? null}, email = ${email ?? null}, role = ${role ?? null}, is_active = ${is_active ?? false}
         WHERE id = ${id}
         RETURNING id, full_name, email, role, is_active
       `;
