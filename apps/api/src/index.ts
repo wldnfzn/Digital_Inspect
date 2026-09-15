@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { handle } from 'hono/vercel';
+import { handle } from '@hono/node-server/vercel';
 
 // Nanti akan diimport routes yang dibuat:
 // import authRoutes from './routes/auth.routes';
