@@ -10,6 +10,7 @@ const sql = postgres(dbUrl, {
   max: 10,
   idle_timeout: 0, // Supabase recommends lower idle timeouts or 0 for serverless
   connect_timeout: 10,
+  prepare: false, // MANDATORY for Supabase PgBouncer transaction mode!
   ssl: 'require' // Supabase requires SSL
 });
 
