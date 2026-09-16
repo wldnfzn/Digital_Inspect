@@ -67,7 +67,7 @@ authRoutes.post('/login', async (c) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -89,7 +89,7 @@ authRoutes.get('/me', authMiddleware, async (c) => {
     return c.json({ user: users[0] });
   } catch (error) {
     console.error('Get profile error:', error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

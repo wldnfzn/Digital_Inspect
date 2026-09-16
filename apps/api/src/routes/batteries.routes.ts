@@ -8,14 +8,14 @@ batteriesRoutes.use('*', authMiddleware);
 batteriesRoutes.get('/', async (c) => {
   try {
     const batteries = await sql`
-      SELECT b.*, c.name as customer_name
+      SELECT b.*, c.name as customer_name, c.location as customer_address, c.contact_person as customer_contact_person
       FROM batteries b
       LEFT JOIN customers c ON b.customer_id = c.id
       ORDER BY b.created_at DESC
     `;
     return c.json({ data: batteries });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -23,7 +23,7 @@ batteriesRoutes.get('/:id', async (c) => {
   try {
     const { id } = c.req.param();
     const batteries = await sql`
-      SELECT b.*, c.name as customer_name
+      SELECT b.*, c.name as customer_name, c.location as customer_address, c.contact_person as customer_contact_person
       FROM batteries b
       LEFT JOIN customers c ON b.customer_id = c.id
       WHERE b.id = ${id} OR b.asset_code = ${id}
@@ -33,42 +33,66 @@ batteriesRoutes.get('/:id', async (c) => {
     
     return c.json({ data: batteries[0] });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
 batteriesRoutes.post('/', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
   try {
-    const { asset_code, brand, voltage, customer_id } = await c.req.json();
+    const { 
+      asset_code, brand, voltage, customer_id,
+      capacity_ah, tray_size, cable_length_positive, type, type_of_plug, cable_length_negative, truck_brand, serial_no
+    } = await c.req.json();
     if (!asset_code) return c.json({ error: 'Asset code is required' }, 400);
 
     const newAsset = await sql`
-      INSERT INTO batteries (asset_code, brand, voltage, customer_id)
-      VALUES (${asset_code}, ${brand}, ${voltage}, ${customer_id})
+      INSERT INTO batteries (
+        asset_code, brand, voltage, customer_id,
+        capacity_ah, tray_size, cable_length_positive, type, type_of_plug, cable_length_negative, truck_brand, serial_no
+      )
+      VALUES (
+        ${asset_code}, ${brand}, ${voltage}, ${customer_id},
+        ${capacity_ah || null}, ${tray_size || null}, ${cable_length_positive || null}, ${type || null}, ${type_of_plug || null}, ${cable_length_negative || null}, ${truck_brand || null}, ${serial_no || null}
+      )
       RETURNING *
     `;
     return c.json({ message: 'Battery created', data: newAsset[0] }, 201);
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
 batteriesRoutes.put('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
   try {
     const { id } = c.req.param();
-    const { asset_code, brand, voltage, customer_id } = await c.req.json();
+    const { 
+      asset_code, brand, voltage, customer_id,
+      capacity_ah, tray_size, cable_length_positive, type, type_of_plug, cable_length_negative, truck_brand, serial_no
+    } = await c.req.json();
     if (!asset_code) return c.json({ error: 'Asset code is required' }, 400);
 
     const updated = await sql`
       UPDATE batteries
-      SET asset_code = ${asset_code}, brand = ${brand}, voltage = ${voltage}, customer_id = ${customer_id}
+      SET 
+        asset_code = ${asset_code}, 
+        brand = ${brand}, 
+        voltage = ${voltage}, 
+        customer_id = ${customer_id},
+        capacity_ah = ${capacity_ah || null},
+        tray_size = ${tray_size || null},
+        cable_length_positive = ${cable_length_positive || null},
+        type = ${type || null},
+        type_of_plug = ${type_of_plug || null},
+        cable_length_negative = ${cable_length_negative || null},
+        truck_brand = ${truck_brand || null},
+        serial_no = ${serial_no || null}
       WHERE id = ${id}
       RETURNING *
     `;
     if (updated.length === 0) return c.json({ error: 'Battery not found' }, 404);
     return c.json({ message: 'Battery updated', data: updated[0] });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

@@ -53,7 +53,40 @@ reportsRoutes.get('/', async (c) => {
     return c.json({ data: allReports });
   } catch (error) {
     console.error(error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
+  }
+});
+
+// DELETE /reports/:type/:id
+reportsRoutes.delete('/:type/:id', async (c) => {
+  try {
+    const { type, id } = c.req.param();
+    let taskId = null;
+
+    if (type === 'FORKLIFT') {
+      const report = await sql`SELECT task_id FROM forklift_inspections WHERE id = ${id}`;
+      if (report.length > 0) taskId = report[0].task_id;
+      
+      await sql`DELETE FROM forklift_inspection_scores WHERE inspection_id = ${id}`;
+      await sql`DELETE FROM forklift_inspections WHERE id = ${id}`;
+    } else if (type === 'BATTERY') {
+      const report = await sql`SELECT task_id FROM battery_service_reports WHERE id = ${id}`;
+      if (report.length > 0) taskId = report[0].task_id;
+
+      await sql`DELETE FROM battery_service_reports WHERE id = ${id}`;
+    } else {
+      return c.json({ error: 'Invalid type' }, 400);
+    }
+
+    // Delete associated task if exists
+    if (taskId) {
+      await sql`DELETE FROM inspection_tasks WHERE id = ${taskId}`;
+    }
+
+    return c.json({ message: 'Report and associated task deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

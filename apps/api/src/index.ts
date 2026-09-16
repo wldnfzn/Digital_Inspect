@@ -32,8 +32,8 @@ app.use('*', cors({
 
 // Global error handler
 app.onError((err, c) => {
-  console.error(err);
-  return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  console.error('Global Error:', err);
+  return c.json({ error: err.message || 'Internal Server Error', stack: err.stack }, 500);
 });
 
 // Basic Health Check Route

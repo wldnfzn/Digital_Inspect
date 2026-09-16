@@ -15,7 +15,7 @@ forkliftsRoutes.get('/', async (c) => {
     `;
     return c.json({ data: forklifts });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -33,7 +33,7 @@ forkliftsRoutes.get('/:id', async (c) => {
     
     return c.json({ data: forklifts[0] });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -49,7 +49,7 @@ forkliftsRoutes.post('/', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
     `;
     return c.json({ message: 'Forklift created', data: newAsset[0] }, 201);
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -68,7 +68,7 @@ forkliftsRoutes.put('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => 
     if (updated.length === 0) return c.json({ error: 'Forklift not found' }, 404);
     return c.json({ message: 'Forklift updated', data: updated[0] });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

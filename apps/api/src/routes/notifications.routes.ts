@@ -16,7 +16,7 @@ notificationsRoutes.get('/', async (c) => {
     `;
     return c.json({ data: notifications });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -32,7 +32,7 @@ notificationsRoutes.put('/:id/read', async (c) => {
     `;
     return c.json({ message: 'Marked as read' });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

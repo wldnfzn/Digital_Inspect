@@ -15,7 +15,7 @@ auditRoutes.get('/', async (c) => {
     `;
     return c.json({ data: logs });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

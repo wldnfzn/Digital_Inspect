@@ -21,7 +21,7 @@ settingsRoutes.get('/templates/forklift', async (c) => {
     
     return c.json({ data: mapped });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -54,7 +54,7 @@ settingsRoutes.post('/templates/forklift/sync', roleGuard(['SUPER_ADMIN']), asyn
     return c.json({ message: 'Template synchronized successfully' });
   } catch (error) {
     console.error(error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 

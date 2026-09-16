@@ -17,7 +17,7 @@ customersRoutes.get('/', async (c) => {
     `;
     return c.json({ data: customers });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -36,7 +36,7 @@ customersRoutes.post('/', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
     
     return c.json({ message: 'Customer created successfully', data: newCustomer[0] }, 201);
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -59,7 +59,7 @@ customersRoutes.put('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => 
     
     return c.json({ message: 'Customer updated', data: updated[0] });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
