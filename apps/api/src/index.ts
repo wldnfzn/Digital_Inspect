@@ -67,6 +67,14 @@ app.get('/db-users', async (c) => {
   }
 });
 
+app.post('/post-test', async (c) => {
+  try {
+    const body = await c.req.json();
+    return c.json({ status: 'ok', body });
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
+  }
+});
 app.route('/auth', authRoutes);
 app.route('/customers', customersRoutes);
 app.route('/forklifts', forkliftsRoutes);
