@@ -67,6 +67,10 @@ app.get('/db-users', async (c) => {
   }
 });
 
+app.get('/env-test', (c) => {
+  return c.json({ helpers: process.env.NODEJS_HELPERS });
+});
+
 app.post('/post-test', async (c) => {
   try {
     const body = await c.req.json();
