@@ -1,9 +1,6 @@
 import postgres from 'postgres';
 
-const dbUrl = process.env.DATABASE_URL;
-if (!dbUrl) {
-  throw new Error("DATABASE_URL environment variable is missing!");
-}
+const dbUrl = 'postgresql://digital_inspect_owner:EaC3nQ5LkxBf@ep-curly-recipe-a1m4d6s2.ap-southeast-1.aws.neon.tech/digital_inspect?sslmode=require';
 
 // Set up the postgres client
 const sql = postgres(dbUrl, {
