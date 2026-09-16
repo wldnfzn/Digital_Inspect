@@ -71,27 +71,6 @@ app.get('/env-test', (c) => {
   return c.json({ helpers: process.env.NODEJS_HELPERS });
 });
 
-app.get('/run-migration', async (c) => {
-  try {
-    const { default: sql } = await import('./lib/db');
-    await sql`ALTER TABLE forklifts ADD COLUMN IF NOT EXISTS year VARCHAR(10);`;
-    await sql`
-      ALTER TABLE batteries 
-      ADD COLUMN IF NOT EXISTS capacity_ah VARCHAR(50),
-      ADD COLUMN IF NOT EXISTS tray_size VARCHAR(100),
-      ADD COLUMN IF NOT EXISTS cable_length_positive VARCHAR(50),
-      ADD COLUMN IF NOT EXISTS type VARCHAR(50),
-      ADD COLUMN IF NOT EXISTS type_of_plug VARCHAR(50),
-      ADD COLUMN IF NOT EXISTS cable_length_negative VARCHAR(50),
-      ADD COLUMN IF NOT EXISTS truck_brand VARCHAR(100),
-      ADD COLUMN IF NOT EXISTS serial_no VARCHAR(100);
-    `;
-    return c.json({ status: 'ok', message: 'Migration applied!' });
-  } catch (err: any) {
-    return c.json({ error: err.message }, 500);
-  }
-});
-
 app.post('/post-test', async (c) => {
   try {
     const body = await c.req.json();
