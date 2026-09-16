@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { handle } from '@hono/node-server/vercel';
+import { handle } from 'hono/vercel';
 
 // Nanti akan diimport routes yang dibuat:
 // import authRoutes from './routes/auth.routes';
@@ -57,4 +57,5 @@ const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 
 
+export { app };
 export default handle(app);

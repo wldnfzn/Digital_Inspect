@@ -1,4 +1,4 @@
-import app from './index';
+import { app } from './index';
 import { serve } from '@hono/node-server';
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
