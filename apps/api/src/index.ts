@@ -92,4 +92,11 @@ const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 
 export { app };
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default handle(app);
