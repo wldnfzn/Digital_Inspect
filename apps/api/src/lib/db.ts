@@ -1,17 +1,23 @@
-import postgres from 'postgres';
+import { Pool } from 'pg';
 
 const dbUrl = process.env.DATABASE_URL;
-
 if (!dbUrl) {
   throw new Error("DATABASE_URL environment variable is missing!");
 }
 
-const sql = postgres(dbUrl, {
+const pool = new Pool({
+  connectionString: dbUrl,
   max: 10,
-  idle_timeout: 0, // Supabase recommends lower idle timeouts or 0 for serverless
-  connect_timeout: 10,
-  prepare: false, // MANDATORY for Supabase PgBouncer transaction mode!
-  ssl: 'require' // Supabase requires SSL
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 10000,
+  ssl: { rejectUnauthorized: false }
 });
 
-export default sql;
+export default async function sql(strings: TemplateStringsArray, ...values: any[]) {
+  let query = strings[0];
+  for (let i = 1; i < strings.length; i++) {
+    query += `$${i}` + strings[i];
+  }
+  const result = await pool.query(query, values);
+  return result.rows;
+}
