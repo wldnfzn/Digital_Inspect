@@ -4,9 +4,10 @@ const dbUrl = 'postgresql://digital_inspect_owner:EaC3nQ5LkxBf@ep-curly-recipe-a
 
 // Set up the postgres client
 const sql = postgres(dbUrl, {
-  max: 10,             // Max number of connections
-  idle_timeout: 20,    // Idle connection timeout in seconds
-  connect_timeout: 10, // Connect timeout in seconds
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10,
+  ssl: 'require'
 });
 
 export default sql;
