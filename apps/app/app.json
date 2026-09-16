@@ -16,7 +16,12 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.wildanfauzan.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -29,6 +34,11 @@
           "cameraPermission": "Allow Digital Inspect to access your camera to scan asset QR codes."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "599ef9fc-2353-4528-9ed8-3c2b6b0131d0"
+      }
+    }
   }
 }

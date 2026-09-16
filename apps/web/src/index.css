@@ -16,7 +16,7 @@
     visibility: hidden;
   }
   #printable-report, #printable-report * {
-    visibility: visible;
+    visibility: visible !important;
   }
   #printable-report {
     position: absolute;

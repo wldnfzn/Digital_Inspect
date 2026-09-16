@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { UserRole } from '../types';
 import { api } from '../lib/api';
+import { BatteryPrintLayout } from '../components/BatteryPrintLayout';
 
 export const ReportsPage = () => {
   const { user } = useAuth();
@@ -32,6 +33,17 @@ export const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [selectedReportType, setSelectedReportType] = useState('');
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const handleDelete = async (id: string, type: string) => {
+    if (!confirm('Hapus laporan ini? Data yang sudah dihapus tidak dapat dikembalikan.')) return;
+    try {
+      await api.delete(`/reports/${type}/${id}`);
+      alert('Laporan berhasil dihapus');
+      setReports(reports.filter(r => r.id !== id));
+    } catch (e: any) {
+      alert('Gagal: ' + (e.response?.data?.error || e.message));
+    }
+  };
 
   const openDetail = (id: string, type: string) => {
     setLoadingDetail(true);
@@ -146,12 +158,18 @@ export const ReportsPage = () => {
                         </span>
                       )}
                     </td>
-                    <td className="p-sm pr-md">
+                    <td className="p-sm pr-md flex gap-2">
                       <button 
                         className="text-primary hover:underline text-sm font-medium cursor-pointer"
                         onClick={() => openDetail(r.id, r.asset_type)}
                       >
                         View Detail
+                      </button>
+                      <button 
+                        className="text-error hover:underline text-sm font-medium cursor-pointer text-[#dc2626]"
+                        onClick={() => handleDelete(r.id, r.asset_type)}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -339,7 +357,10 @@ export const ReportsPage = () => {
               </div>
 
               {/* EXACT NCR PDF LAYOUT (ONLY SHOWN IN PRINT) */}
-              <div className="hidden print:block text-[10px] leading-tight font-sans">
+              {selectedReportType === 'BATTERY' ? (
+                <BatteryPrintLayout report={selectedReport} />
+              ) : (
+                <div className="hidden print:block text-[10px] leading-tight font-sans">
                 {/* Header */}
                 <div className="flex border-b-2 border-black pb-2 mb-2 items-center">
                   <div className="w-1/4">
@@ -526,6 +547,7 @@ export const ReportsPage = () => {
                   ))}
                 </div>
               </div>
+              )}
             </div>
             <div className="p-4 border-t border-outline-variant flex justify-end bg-surface-container-lowest">
               <button onClick={() => setSelectedReport(null)} className="px-4 py-2 border rounded font-medium hover:bg-surface-container-low">Close</button>

@@ -9,6 +9,12 @@ export const InspectionsPage = () => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
+  // Filter state
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [dateFilter, setDateFilter] = useState('');
+  
   // State for form
   const [assetType, setAssetType] = useState('FORKLIFT');
   const [assetId, setAssetId] = useState('');
@@ -64,6 +70,30 @@ export const InspectionsPage = () => {
       fetchTasks(); // Refresh tasks
     } catch (error: any) {
       alert('Gagal: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
+  const filteredTasks = tasks.filter(t => {
+    const code = (t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code) || '';
+    const mechanic = t.mechanic_name || t.assigned_to || '';
+    const searchLower = search.toLowerCase();
+    
+    const matchesSearch = code.toLowerCase().includes(searchLower) || mechanic.toLowerCase().includes(searchLower);
+    const matchesType = typeFilter === 'ALL' || t.asset_type === typeFilter;
+    const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
+    const matchesDate = dateFilter === '' || (t.scheduled_date && t.scheduled_date.startsWith(dateFilter));
+    
+    return matchesSearch && matchesType && matchesStatus && matchesDate;
+  });
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Hapus jadwal ini?')) return;
+    try {
+      await api.delete(`/inspections/tasks/${id}`);
+      alert('Jadwal berhasil dihapus');
+      fetchTasks();
+    } catch (e: any) {
+      alert('Gagal: ' + (e.response?.data?.error || e.message));
     }
   };
 
@@ -142,8 +172,42 @@ export const InspectionsPage = () => {
       )}
 
       <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md">
-        <div className="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+        <div className="p-md border-b border-outline-variant flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-surface-bright">
           <h3 className="font-semibold">Inspection Tasks</h3>
+          <div className="flex flex-wrap gap-2">
+            <input 
+              type="date"
+              value={dateFilter}
+              onChange={e => setDateFilter(e.target.value)}
+              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary text-on-surface-variant"
+              title="Filter by Schedule Date"
+            />
+            <input 
+              type="text" 
+              placeholder="Search code or mechanic..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary"
+            />
+            <select 
+              value={typeFilter} 
+              onChange={e => setTypeFilter(e.target.value)} 
+              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary"
+            >
+              <option value="ALL">All Types</option>
+              <option value="FORKLIFT">Forklift</option>
+              <option value="BATTERY">Battery</option>
+            </select>
+            <select 
+              value={statusFilter} 
+              onChange={e => setStatusFilter(e.target.value)} 
+              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary"
+            >
+              <option value="ALL">All Status</option>
+              <option value="SCHEDULED">Scheduled</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -154,14 +218,15 @@ export const InspectionsPage = () => {
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Type</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Mechanic</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Status</th>
+                <th className="p-sm pr-md font-label-sm text-label-sm font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="font-body-md text-body-md text-on-background">
               {loading ? (
-                <tr><td colSpan={5} className="p-4 text-center">Loading...</td></tr>
-              ) : tasks.length === 0 ? (
-                <tr><td colSpan={5} className="p-4 text-center">No tasks found</td></tr>
-              ) : tasks.map(t => (
+                <tr><td colSpan={6} className="p-4 text-center">Loading...</td></tr>
+              ) : filteredTasks.length === 0 ? (
+                <tr><td colSpan={6} className="p-4 text-center">No tasks found matching filters</td></tr>
+              ) : filteredTasks.map(t => (
                 <tr key={t.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
                   <td className="p-sm pl-md">{new Date(t.scheduled_date).toLocaleDateString()}</td>
                   <td className="p-sm font-medium text-primary">{t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code}</td>
@@ -174,6 +239,16 @@ export const InspectionsPage = () => {
                     }`}>
                       {t.status}
                     </span>
+                  </td>
+                  <td className="p-sm pr-md text-right">
+                    {canSchedule && (
+                      <button 
+                        className="text-error hover:underline text-sm font-medium cursor-pointer text-[#dc2626]"
+                        onClick={() => handleDelete(t.id)}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -71,10 +71,14 @@ export const CustomersPage = () => {
     }
   };
 
-  const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
-    (c.location && c.location.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredCustomers = customers.filter(c => {
+    const s = search.toLowerCase();
+    return (
+      c.name.toLowerCase().includes(s) || 
+      (c.location && c.location.toLowerCase().includes(s)) ||
+      (c.contact_person && c.contact_person.toLowerCase().includes(s))
+    );
+  });
 
   return (
     <>
@@ -93,16 +97,16 @@ export const CustomersPage = () => {
 
       <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md shadow-sm">
         <div className="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
-          <div className="relative w-64 hidden sm:block">
-            <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
-            <input 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 text-body-md h-8 focus:border-primary outline-none" 
-              placeholder="Search customers..." 
-              type="text"
-            />
-          </div>
+            <div className="relative w-80 hidden sm:block">
+              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
+              <input 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 text-body-md h-8 focus:border-primary outline-none" 
+                placeholder="Search name, contact, location..." 
+                type="text"
+              />
+            </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
