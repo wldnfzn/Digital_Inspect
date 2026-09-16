@@ -54,6 +54,19 @@ app.get('/db-test', async (c) => {
   }
 });
 
+app.get('/db-users', async (c) => {
+  try {
+    const { default: sql } = await import('./lib/db');
+    const result = await Promise.race([
+      sql`SELECT * FROM users LIMIT 1`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DB Query Timeout')), 3000))
+    ]);
+    return c.json({ status: 'ok', result });
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
+  }
+});
+
 app.route('/auth', authRoutes);
 app.route('/customers', customersRoutes);
 app.route('/forklifts', forkliftsRoutes);
