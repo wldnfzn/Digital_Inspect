@@ -1,7 +1,9 @@
 import postgres from 'postgres';
 
-// Use environment variables in production, fallback to local docker for dev
-const dbUrl = process.env.DATABASE_URL || 'postgres://postgres:password123@localhost:5432/digital_inspect';
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
+  throw new Error("DATABASE_URL environment variable is missing!");
+}
 
 // Set up the postgres client
 const sql = postgres(dbUrl, {
