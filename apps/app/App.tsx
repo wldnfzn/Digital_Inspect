@@ -1138,17 +1138,10 @@ const BatteryServiceFormScreen = ({ route, navigation }: any) => {
   const { id, task_id, asset } = route.params;
   
   // Header Info
-  const [contactPerson, setContactPerson] = useState(asset?.customer_contact_person || '');
-  const [complaint, setComplaint] = useState('');
-  const [batteryCap, setBatteryCap] = useState(asset?.capacity_ah || '');
+  const [assetCode, setAssetCode] = useState(asset?.asset_code || '');
+  const [brand, setBrand] = useState(asset?.brand || '');
   const [voltage, setVoltage] = useState(asset?.voltage ? asset.voltage.toString() : '');
-  const [type, setType] = useState(asset?.type || '');
-  const [traySize, setTraySize] = useState(asset?.tray_size || '');
-  const [typeOfPlug, setTypeOfPlug] = useState(asset?.type_of_plug || '');
-  const [cablePos, setCablePos] = useState(asset?.cable_length_positive || '');
-  const [cableNeg, setCableNeg] = useState(asset?.cable_length_negative || '');
-  const [truckBrand, setTruckBrand] = useState(asset?.truck_brand || '');
-
+  const [customer, setCustomer] = useState(asset?.customer_id || '');
   const [condDuringServ, setCondDuringServ] = useState('');
   
   // 40 cells state: { sg: string, v: string }
@@ -1177,14 +1170,7 @@ const BatteryServiceFormScreen = ({ route, navigation }: any) => {
       const fullData = {
         contact_person: contactPerson,
         complaint: complaint,
-        battery_cap: batteryCap,
         ah_voltage: voltage,
-        type: type,
-        tray_size: traySize,
-        type_of_plug: typeOfPlug,
-        cable_pos: cablePos,
-        cable_neg: cableNeg,
-        truck_brand: truckBrand,
         condition_during_servicing: condDuringServ,
         cells,
         charger,
@@ -1216,16 +1202,7 @@ const BatteryServiceFormScreen = ({ route, navigation }: any) => {
           <Text style={styles.sectionTitle}>Data & Keluhan</Text>
           <TextInput style={styles.textInput} placeholder="Contact Person/Dept" value={contactPerson} onChangeText={setContactPerson} />
           <TextInput style={styles.textInput} placeholder="Nature Of Complaint/Service needed" value={complaint} onChangeText={setComplaint} />
-          <TextInput style={styles.textInput} placeholder="Battery Cap (Ah)" value={batteryCap} onChangeText={setBatteryCap} />
           <TextInput style={styles.textInput} placeholder="Voltage" value={voltage} onChangeText={setVoltage} />
-          <TextInput style={styles.textInput} placeholder="Type" value={type} onChangeText={setType} />
-          <TextInput style={styles.textInput} placeholder="Tray Size" value={traySize} onChangeText={setTraySize} />
-          <TextInput style={styles.textInput} placeholder="Type of Plug" value={typeOfPlug} onChangeText={setTypeOfPlug} />
-          <View style={{flexDirection:'row', gap: 8}}>
-            <TextInput style={[styles.textInput, {flex: 1}]} placeholder="Cable Length Positive (mm)" value={cablePos} onChangeText={setCablePos} />
-            <TextInput style={[styles.textInput, {flex: 1}]} placeholder="Cable Length Negative (mm)" value={cableNeg} onChangeText={setCableNeg} />
-          </View>
-          <TextInput style={styles.textInput} placeholder="Truck Brand/Model" value={truckBrand} onChangeText={setTruckBrand} />
         </View>
 
         {/* CONDITION */}
