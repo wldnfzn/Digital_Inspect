@@ -15,11 +15,13 @@ authRoutes.post('/login', async (c) => {
       return c.json({ error: 'Email and password are required' }, 400);
     }
 
+    console.log('Login attempt for:', email);
     const users = await sql`
       SELECT id, email, password_hash, full_name, role, avatar_url, is_active
       FROM users
       WHERE email = ${email}
     `;
+    console.log('Query returned', users.length, 'users');
 
     if (users.length === 0) {
       return c.json({ error: 'Invalid credentials' }, 401);
@@ -27,18 +29,23 @@ authRoutes.post('/login', async (c) => {
 
     const user = users[0];
 
+    console.log('Checking active status');
     if (!user.is_active) {
       return c.json({ error: 'Account is inactive' }, 403);
     }
 
+    console.log('Comparing bcrypt password');
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
       return c.json({ error: 'Invalid credentials' }, 401);
     }
 
+    console.log('Updating last login');
     // Update last login
     await sql`UPDATE users SET last_login_at = NOW() WHERE id = ${user.id}`;
+    
+    console.log('Generating JWT');
 
     // Sign JWT
     const payload = {
