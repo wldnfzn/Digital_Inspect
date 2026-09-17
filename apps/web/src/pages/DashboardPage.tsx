@@ -91,7 +91,14 @@ export const DashboardPage = () => {
         {/* 1. Header & Date Filters Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md print:hidden">
           <div>
-            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">Dashboard Utama</h1>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-label-sm text-[10px] text-primary font-bold uppercase tracking-widest">PT United Multilift Perkasa</span>
+              <span className="text-outline-variant">•</span>
+              <span className="font-label-sm text-[10px] text-[#16a34a] font-bold bg-[#dcfce7] px-1.5 py-0.5 rounded flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span> Live Telemetry
+              </span>
+            </div>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Dashboard Utama</h1>
             <p className="font-body-md text-body-md text-on-surface-variant mt-0.5">Ringkasan performa dan kesehatan aset perusahaan.</p>
           </div>
           
