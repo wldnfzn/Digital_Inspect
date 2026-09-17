@@ -89,7 +89,7 @@ dashboardRoutes.get('/stats', async (c) => {
         customer_summary: customerSummary
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Internal Server Error' }, 500);
   }
 });

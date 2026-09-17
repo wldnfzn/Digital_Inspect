@@ -17,7 +17,7 @@ usersRoutes.get('/mechanics', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) =
       ORDER BY full_name ASC
     `;
     return c.json({ data: mechanics });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -31,7 +31,7 @@ usersRoutes.get('/', roleGuard(['SUPER_ADMIN']), async (c) => {
       ORDER BY created_at DESC
     `;
     return c.json({ data: users });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -61,7 +61,7 @@ usersRoutes.post('/', roleGuard(['SUPER_ADMIN']), async (c) => {
     `;
 
     return c.json({ message: 'User created successfully', data: result[0] }, 201);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
@@ -94,7 +94,7 @@ usersRoutes.put('/:id', roleGuard(['SUPER_ADMIN']), async (c) => {
 
     const result = await query;
     return c.json({ message: 'User updated successfully', data: result[0] });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }

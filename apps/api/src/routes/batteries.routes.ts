@@ -14,7 +14,7 @@ batteriesRoutes.get('/', async (c) => {
       ORDER BY b.created_at DESC
     `;
     return c.json({ data: batteries });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
@@ -32,7 +32,7 @@ batteriesRoutes.get('/:id', async (c) => {
     if (batteries.length === 0) return c.json({ error: 'Battery not found' }, 404);
     
     return c.json({ data: batteries[0] });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
@@ -48,7 +48,7 @@ batteriesRoutes.post('/', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
       RETURNING *
     `;
     return c.json({ message: 'Battery created', data: newAsset[0] }, 201);
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
@@ -67,7 +67,7 @@ batteriesRoutes.put('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => 
     `;
     if (updated.length === 0) return c.json({ error: 'Battery not found' }, 404);
     return c.json({ message: 'Battery updated', data: updated[0] });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
@@ -80,7 +80,7 @@ batteriesRoutes.delete('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) 
     `;
     if (deleted.length === 0) return c.json({ error: 'Battery not found' }, 404);
     return c.json({ message: 'Battery deleted' });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Cannot delete battery (may have associated tasks).' }, 400);
   }
 });

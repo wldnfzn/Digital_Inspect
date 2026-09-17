@@ -15,7 +15,7 @@ notificationsRoutes.get('/', async (c) => {
       LIMIT 50
     `;
     return c.json({ data: notifications });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -31,7 +31,7 @@ notificationsRoutes.put('/:id/read', async (c) => {
       WHERE id = ${id} AND user_id = ${user.userId}
     `;
     return c.json({ message: 'Marked as read' });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });

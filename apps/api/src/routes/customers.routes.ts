@@ -16,7 +16,7 @@ customersRoutes.get('/', async (c) => {
       ORDER BY name ASC
     `;
     return c.json({ data: customers });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -35,7 +35,7 @@ customersRoutes.post('/', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
     `;
     
     return c.json({ message: 'Customer created successfully', data: newCustomer[0] }, 201);
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -58,7 +58,7 @@ customersRoutes.put('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => 
     if (updated.length === 0) return c.json({ error: 'Customer not found' }, 404);
     
     return c.json({ message: 'Customer updated', data: updated[0] });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -74,7 +74,7 @@ customersRoutes.delete('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) 
     if (deleted.length === 0) return c.json({ error: 'Customer not found' }, 404);
     
     return c.json({ message: 'Customer deleted' });
-  } catch (error) {
+  } catch (error: any) {
     // If it fails, likely a foreign key constraint (customer has assets)
     return c.json({ error: 'Cannot delete customer because they have associated assets.' }, 400);
   }

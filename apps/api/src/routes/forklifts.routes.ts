@@ -14,7 +14,7 @@ forkliftsRoutes.get('/', async (c) => {
       ORDER BY f.created_at DESC
     `;
     return c.json({ data: forklifts });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -32,7 +32,7 @@ forkliftsRoutes.get('/:id', async (c) => {
     if (forklifts.length === 0) return c.json({ error: 'Forklift not found' }, 404);
     
     return c.json({ data: forklifts[0] });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -48,7 +48,7 @@ forkliftsRoutes.post('/', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
       RETURNING *
     `;
     return c.json({ message: 'Forklift created', data: newAsset[0] }, 201);
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -67,7 +67,7 @@ forkliftsRoutes.put('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => 
     `;
     if (updated.length === 0) return c.json({ error: 'Forklift not found' }, 404);
     return c.json({ message: 'Forklift updated', data: updated[0] });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
@@ -80,7 +80,7 @@ forkliftsRoutes.delete('/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) 
     `;
     if (deleted.length === 0) return c.json({ error: 'Forklift not found' }, 404);
     return c.json({ message: 'Forklift deleted' });
-  } catch (error) {
+  } catch (error: any) {
     return c.json({ error: 'Cannot delete forklift (may have associated tasks).' }, 400);
   }
 });

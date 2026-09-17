@@ -51,7 +51,7 @@ reportsRoutes.get('/', async (c) => {
     });
 
     return c.json({ data: allReports });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
@@ -84,7 +84,7 @@ reportsRoutes.delete('/:type/:id', async (c) => {
     }
 
     return c.json({ message: 'Report and associated task deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
