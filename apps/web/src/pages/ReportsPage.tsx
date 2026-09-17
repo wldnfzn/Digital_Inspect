@@ -60,10 +60,10 @@ export const ReportsPage = () => {
   };
 
   return (
-    <div className="w-full flex flex-col p-gutter-lg space-y-gutter-lg max-w-[1600px] mx-auto print:p-0 print:space-y-0">
+    <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Inspection Reports</h2>
+          <h2 className="font-headline-xl text-headline-xl text-on-background">Inspection Reports</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-xs">View completed inspection and service reports</p>
         </div>
         <button 
@@ -104,7 +104,7 @@ export const ReportsPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
                 <th className="p-sm pl-md font-label-sm text-label-sm font-semibold">Completed Date</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Asset Type</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Asset Code</th>
@@ -555,6 +555,6 @@ export const ReportsPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
