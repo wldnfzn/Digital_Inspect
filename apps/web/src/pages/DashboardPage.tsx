@@ -250,9 +250,9 @@ export const DashboardPage = () => {
   const openDetail = async (id: string, type: string) => {
     try {
       setLoadingDetail(true);
-      const res = await api.get(`/reports/${type}/${id}`);
-      if (res.data) {
-        setSelectedReport(res.data);
+      const res = await api.get(`/inspections/${type.toLowerCase()}/${id}`);
+      if (res.data?.data) {
+        setSelectedReport(res.data.data);
         setSelectedReportType(type);
       }
     } catch (err) {
