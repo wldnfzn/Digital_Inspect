@@ -77,16 +77,29 @@ reportsRoutes.delete('/:type/:id', async (c) => {
       if (assetId) {
         const latest = await sql`SELECT health_percentage, health_status FROM forklift_inspections WHERE forklift_id = ${assetId} ORDER BY completed_at DESC LIMIT 1`;
         if (latest.length > 0) {
-          await sql`UPDATE forklifts SET last_health_percentage = ${latest[0].health_percentage}, last_health_status = ${latest[0].health_status} WHERE id = ${assetId}`;
+          await sql`UPDATE forklifts SET health_score = ${latest[0].health_percentage}, health_status = ${latest[0].health_status} WHERE id = ${assetId}`;
         } else {
-          await sql`UPDATE forklifts SET last_health_percentage = 0, last_health_status = NULL WHERE id = ${assetId}`;
+          await sql`UPDATE forklifts SET health_score = 0, health_status = 'HEALTHY' WHERE id = ${assetId}`;
         }
       }
     } else if (type === 'BATTERY') {
-      const report = await sql`SELECT task_id FROM battery_service_reports WHERE id = ${id}`;
-      if (report.length > 0) taskId = report[0].task_id;
+      let assetId = null;
+      const report = await sql`SELECT task_id, battery_id FROM battery_service_reports WHERE id = ${id}`;
+      if (report.length > 0) {
+        taskId = report[0].task_id;
+        assetId = report[0].battery_id;
+      }
 
       await sql`DELETE FROM battery_service_reports WHERE id = ${id}`;
+
+      if (assetId) {
+        const latest = await sql`SELECT voltage_reading FROM battery_service_reports WHERE battery_id = ${assetId} ORDER BY completed_at DESC LIMIT 1`;
+        if (latest.length > 0) {
+          await sql`UPDATE batteries SET voltage = ${latest[0].voltage_reading} WHERE id = ${assetId}`;
+        } else {
+          await sql`UPDATE batteries SET voltage = NULL WHERE id = ${assetId}`;
+        }
+      }
     } else {
       return c.json({ error: 'Invalid type' }, 400);
     }
