@@ -47,4 +47,5 @@ sql.begin = async (callback: any) => {
   }
 };
 
+export { pool };
 export default sql;
