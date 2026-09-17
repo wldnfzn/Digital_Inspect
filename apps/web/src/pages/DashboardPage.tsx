@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../AuthContext';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell
@@ -27,9 +27,9 @@ export const DashboardPage = () => {
       try {
         let url = '/dashboard/stats?';
         if (startDate && endDate) {
-          url += \`startDate=\${startDate}&endDate=\${endDate}\`;
+          url += `startDate=${startDate}&endDate=${endDate}`;
         } else if (month) {
-          url += \`month=\${month}\`;
+          url += `month=${month}`;
         }
         const response = await api.get(url);
         if (response.data?.data) {
@@ -47,7 +47,7 @@ export const DashboardPage = () => {
   const openDetail = async (id: string, type: string) => {
     try {
       setLoadingDetail(true);
-      const res = await api.get(\`/inspections/\${type.toLowerCase()}/\${id}\`);
+      const res = await api.get(`/inspections/${type.toLowerCase()}/${id}`);
       if (res.data?.data) {
         setSelectedReport(res.data.data);
         setSelectedReportType(type);
@@ -76,7 +76,7 @@ export const DashboardPage = () => {
   const formatShortDate = (dateStr: string) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
-    return \`\${d.getDate()} \${d.toLocaleString('id-ID', { month: 'short' })}\`;
+    return `${d.getDate()} ${d.toLocaleString('id-ID', { month: 'short' })}`;
   };
 
   const donutData = [
@@ -307,7 +307,7 @@ export const DashboardPage = () => {
                     stroke="none"
                   >
                     {donutData.map((entry, index) => (
-                      <Cell key={\`cell-\${index}\`} fill={entry.color} />
+                      <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5eeff', fontSize: '12px' }} />
@@ -384,7 +384,7 @@ export const DashboardPage = () => {
                     domain={[0, 100]}
                     axisLine={false} 
                     tickLine={false} 
-                    tickFormatter={(val) => \`\${val}%\`}
+                    tickFormatter={(val) => `${val}%`}
                     tick={{ fill: '#757684', fontSize: 10, fontWeight: 500 }}
                   />
                   <RechartsTooltip 
@@ -429,7 +429,7 @@ export const DashboardPage = () => {
                   return (
                     <div key={idx} className="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
                       <div className="flex items-center gap-space-sm">
-                        <div className={\`w-8 h-8 rounded-full \${color.bg} flex items-center justify-center \${color.text} font-label-md text-label-md font-bold\`}>
+                        <div className={`w-8 h-8 rounded-full ${color.bg} flex items-center justify-center ${color.text} font-label-md text-label-md font-bold`}>
                           {initials}
                         </div>
                         <div className="flex flex-col">
@@ -535,23 +535,23 @@ export const DashboardPage = () => {
                       <tr key={idx} onClick={() => openDetail(r.id, r.asset_type)} className="hover:bg-surface-container-low/60 transition-colors cursor-pointer">
                         <td className="py-3 px-space-sm font-label-md text-label-md font-bold text-on-surface">{r.asset_code}</td>
                         <td className="py-3 px-space-sm">
-                          <span className={\`font-label-sm text-label-sm px-space-xs py-0.5 rounded font-semibold \${r.asset_type === 'FORKLIFT' ? 'bg-surface-container text-primary' : 'bg-surface-container text-tertiary'}\`}>
+                          <span className={`font-label-sm text-label-sm px-space-xs py-0.5 rounded font-semibold ${r.asset_type === 'FORKLIFT' ? 'bg-surface-container text-primary' : 'bg-surface-container text-tertiary'}`}>
                             {r.asset_type}
                           </span>
                         </td>
                         <td className="py-3 px-space-sm text-on-surface-variant">{formatShortDate(r.date)}</td>
                         <td className="py-3 px-space-sm text-right">
                           {r.asset_type === 'FORKLIFT' ? (
-                            <span className={\`font-label-md text-label-md px-space-sm py-0.5 rounded-full font-bold \${
+                            <span className={`font-label-md text-label-md px-space-sm py-0.5 rounded-full font-bold ${
                               r.status === 'CRITICAL' ? 'bg-error-container text-on-error-container' :
                               r.status === 'ATTENTION' ? 'bg-amber-50 text-amber-600' :
                               'bg-emerald-50 text-emerald-600'
-                            }\`}>
+                            }`}>
                               {r.score}%
                             </span>
                           ) : (
                             <span className="font-label-md text-label-md text-on-surface font-semibold bg-surface-container-low px-space-sm py-0.5 rounded">
-                              {r.score ? \`\${r.score}V\` : '-'}
+                              {r.score ? `${r.score}V` : '-'}
                             </span>
                           )}
                         </td>
@@ -609,7 +609,7 @@ export const DashboardPage = () => {
               <>
                 <div className="mb-6 flex justify-between items-center bg-surface-container-low p-4 rounded-lg">
                   <span className="font-bold">Health Score:</span>
-                  <span className={\`text-xl font-black \${selectedReport.health_status === 'CRITICAL' ? 'text-error' : 'text-primary'}\`}>{selectedReport.health_percentage}%</span>
+                  <span className={`text-xl font-black ${selectedReport.health_status === 'CRITICAL' ? 'text-error' : 'text-primary'}`}>{selectedReport.health_percentage}%</span>
                 </div>
                 
                 <h3 className="font-bold border-b border-outline-variant pb-2 mb-4">Hasil Pengecekan</h3>
@@ -627,7 +627,7 @@ export const DashboardPage = () => {
                         <td className="p-2 text-on-surface-variant">{s.category_name}</td>
                         <td className="p-2">{s.item_name}</td>
                         <td className="p-2 text-center">
-                          <span className={\`inline-block px-2 py-0.5 rounded font-bold \${s.score === 1 ? 'bg-error-container text-on-error-container' : s.score === 2 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}\`}>
+                          <span className={`inline-block px-2 py-0.5 rounded font-bold ${s.score === 1 ? 'bg-error-container text-on-error-container' : s.score === 2 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
                             {s.score}
                           </span>
                         </td>
