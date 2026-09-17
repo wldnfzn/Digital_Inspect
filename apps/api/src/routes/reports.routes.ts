@@ -64,11 +64,24 @@ reportsRoutes.delete('/:type/:id', async (c) => {
     let taskId = null;
 
     if (type === 'FORKLIFT') {
-      const report = await sql`SELECT task_id FROM forklift_inspections WHERE id = ${id}`;
-      if (report.length > 0) taskId = report[0].task_id;
+      let assetId = null;
+      const report = await sql`SELECT task_id, forklift_id FROM forklift_inspections WHERE id = ${id}`;
+      if (report.length > 0) {
+        taskId = report[0].task_id;
+        assetId = report[0].forklift_id;
+      }
       
       await sql`DELETE FROM forklift_inspection_scores WHERE inspection_id = ${id}`;
       await sql`DELETE FROM forklift_inspections WHERE id = ${id}`;
+
+      if (assetId) {
+        const latest = await sql`SELECT health_percentage, health_status FROM forklift_inspections WHERE forklift_id = ${assetId} ORDER BY completed_at DESC LIMIT 1`;
+        if (latest.length > 0) {
+          await sql`UPDATE forklifts SET last_health_percentage = ${latest[0].health_percentage}, last_health_status = ${latest[0].health_status} WHERE id = ${assetId}`;
+        } else {
+          await sql`UPDATE forklifts SET last_health_percentage = 0, last_health_status = NULL WHERE id = ${assetId}`;
+        }
+      }
     } else if (type === 'BATTERY') {
       const report = await sql`SELECT task_id FROM battery_service_reports WHERE id = ${id}`;
       if (report.length > 0) taskId = report[0].task_id;
