@@ -18,14 +18,14 @@ dashboardRoutes.get('/stats', async (c) => {
     let params: any[] = [];
 
     if (startDate && endDate) {
-      filterCompleted = 'completed_at >= $1 AND completed_at <= $2::timestamp + interval \'1 day\'';
-      filterCompletedFi = 'fi.completed_at >= $1 AND fi.completed_at <= $2::timestamp + interval \'1 day\'';
-      filterCreated = 'created_at >= $1 AND created_at <= $2::timestamp + interval \'1 day\'';
+      filterCompleted = 'completed_at AT TIME ZONE \'Asia/Jakarta\' >= $1::timestamp AND completed_at AT TIME ZONE \'Asia/Jakarta\' <= $2::timestamp + interval \'1 day\'';
+      filterCompletedFi = 'fi.completed_at AT TIME ZONE \'Asia/Jakarta\' >= $1::timestamp AND fi.completed_at AT TIME ZONE \'Asia/Jakarta\' <= $2::timestamp + interval \'1 day\'';
+      filterCreated = 'created_at AT TIME ZONE \'Asia/Jakarta\' >= $1::timestamp AND created_at AT TIME ZONE \'Asia/Jakarta\' <= $2::timestamp + interval \'1 day\'';
       params = [startDate, endDate];
     } else if (month) {
-      filterCompleted = 'to_char(completed_at, \'YYYY-MM\') = $1';
-      filterCompletedFi = 'to_char(fi.completed_at, \'YYYY-MM\') = $1';
-      filterCreated = 'to_char(created_at, \'YYYY-MM\') = $1';
+      filterCompleted = 'to_char(completed_at AT TIME ZONE \'Asia/Jakarta\', \'YYYY-MM\') = $1';
+      filterCompletedFi = 'to_char(fi.completed_at AT TIME ZONE \'Asia/Jakarta\', \'YYYY-MM\') = $1';
+      filterCreated = 'to_char(created_at AT TIME ZONE \'Asia/Jakarta\', \'YYYY-MM\') = $1';
       params = [month];
     }
 
@@ -62,7 +62,7 @@ dashboardRoutes.get('/stats', async (c) => {
 
     // Line Chart: Avg Health Trend
     const avgHealthTrendRes = await pool.query(`
-      SELECT date_trunc('day', completed_at) as date, avg(health_percentage) as avg_score
+      SELECT to_char(completed_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD') as date, avg(health_percentage) as avg_score
       FROM forklift_inspections
       WHERE ${filterCompleted}
       GROUP BY date
@@ -72,9 +72,9 @@ dashboardRoutes.get('/stats', async (c) => {
     // Line Chart: Completed Inspections
     const activityInspectionsRes = await pool.query(`
       SELECT date, COUNT(*) as count FROM (
-        SELECT date_trunc('day', completed_at) as date FROM forklift_inspections WHERE ${filterCompleted}
+        SELECT to_char(completed_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD') as date FROM forklift_inspections WHERE ${filterCompleted}
         UNION ALL
-        SELECT date_trunc('day', completed_at) as date FROM battery_service_reports WHERE ${filterCompleted}
+        SELECT to_char(completed_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD') as date FROM battery_service_reports WHERE ${filterCompleted}
       ) as combined
       GROUP BY date
       ORDER BY date ASC
@@ -82,7 +82,7 @@ dashboardRoutes.get('/stats', async (c) => {
 
     // Line Chart: Active Tasks
     const activeTasksRes = await pool.query(`
-      SELECT date_trunc('day', created_at) as date, COUNT(*) as count 
+      SELECT to_char(created_at AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD') as date, COUNT(*) as count 
       FROM inspection_tasks 
       WHERE status IN ('SCHEDULED', 'IN_PROGRESS') AND ${filterCreated}
       GROUP BY date
@@ -160,15 +160,15 @@ dashboardRoutes.get('/stats', async (c) => {
         health_status: healthStatus,
         avg_fleet_health: avgFleetHealth,
         avg_health_trend: avgHealthTrendRes.rows.map(row => ({
-          date: new Date(row.date).toISOString().split('T')[0],
+          date: row.date,
           avg_score: parseFloat(row.avg_score).toFixed(1)
         })),
         activity_inspections: activityInspectionsRes.rows.map(row => ({
-          date: new Date(row.date).toISOString().split('T')[0],
+          date: row.date,
           count: parseInt(row.count)
         })),
         active_tasks_trend: activeTasksRes.rows.map(row => ({
-          date: new Date(row.date).toISOString().split('T')[0],
+          date: row.date,
           count: parseInt(row.count)
         })),
         mechanic_inspections: mechanicInspectionsRes.rows.map(row => ({
