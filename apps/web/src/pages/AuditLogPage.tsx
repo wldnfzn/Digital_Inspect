@@ -1,17 +1,29 @@
-import { useState } from 'react';
-
-const DUMMY_LOGS = [
-  { id: '101', timestamp: '24 Aug 2026, 14:32:01', user: 'Admin (Super Admin)', action: 'UPDATE_USER', target: 'User ID: 5 (Joko)', details: 'Changed status to Inactive' },
-  { id: '102', timestamp: '24 Aug 2026, 13:15:22', user: 'Budi (Manager)', action: 'CREATE_ASSET', target: 'Forklift FL-0042', details: 'Added new forklift for PT ABC' },
-  { id: '103', timestamp: '24 Aug 2026, 10:12:18', user: 'Andi (Mechanic)', action: 'SUBMIT_INSPECTION', target: 'Inspection INS-2026-0042', details: 'Submitted forklift inspection. Health: 92%' },
-  { id: '104', timestamp: '23 Aug 2026, 16:45:00', user: 'Pak Dir (Director)', action: 'DOWNLOAD_REPORT', target: 'Monthly Fleet Health', details: 'Exported PDF report for July 2026' },
-  { id: '105', timestamp: '23 Aug 2026, 09:10:11', user: 'System', action: 'CRITICAL_ALERT', target: 'Forklift FL-0015', details: 'Score 1 detected on Brake System' },
-  { id: '106', timestamp: '22 Aug 2026, 08:30:00', user: 'Budi (Manager)', action: 'UPDATE_CUSTOMER', target: 'Customer: PT XYZ', details: 'Updated contact person details' },
-];
+import { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 
 export const AuditLogPage = () => {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('Today');
+
+  useEffect(() => {
+    setLoading(true);
+    api.get('/audit')
+      .then(res => {
+        if (res.data?.data) {
+          setLogs(res.data.data);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredLogs = logs.filter(log => 
+    (log.action?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+    (log.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+    (log.target?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
+  );
 
   return (
     <>
@@ -64,10 +76,14 @@ export const AuditLogPage = () => {
               </tr>
             </thead>
             <tbody className="font-body-md text-body-md text-on-background">
-              {DUMMY_LOGS.map((log) => (
+              {loading ? (
+                <tr><td colSpan={5} className="p-8 text-center">Loading audit logs...</td></tr>
+              ) : filteredLogs.length === 0 ? (
+                <tr><td colSpan={5} className="p-8 text-center text-on-surface-variant">No logs found</td></tr>
+              ) : filteredLogs.map((log) => (
                 <tr key={log.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                  <td className="p-sm pl-md text-on-surface-variant font-asset-id text-xs">{log.timestamp}</td>
-                  <td className="p-sm font-medium">{log.user}</td>
+                  <td className="p-sm pl-md text-on-surface-variant font-asset-id text-xs">{new Date(log.created_at).toLocaleString()}</td>
+                  <td className="p-sm font-medium">{log.user_name || 'System'}</td>
                   <td className="p-sm">
                     <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-primary-fixed-dim text-on-primary-fixed font-label-sm text-[10px] border border-primary-fixed uppercase tracking-wider">
                       {log.action.replace('_', ' ')}
