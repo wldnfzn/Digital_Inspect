@@ -61,7 +61,9 @@ reportsRoutes.get('/', async (c) => {
 // DELETE /reports/:type/:id
 reportsRoutes.delete('/:type/:id', async (c) => {
   try {
-    const { type, id } = c.req.param();
+    const user = c.get('user');
+    const type = c.req.param('type').toUpperCase();
+    const id = c.req.param('id');
     let taskId = null;
 
     if (type === 'FORKLIFT') {
