@@ -1124,7 +1124,7 @@ const InspectionFormScreen = ({ route, navigation }: any) => {
       </ScrollView>
 
       {isLastItem && (
-        <View style={{ padding: 16, backgroundColor: COLORS.surface, borderTopWidth: 1, borderColor: COLORS.border }}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40, backgroundColor: COLORS.surface, borderTopWidth: 1, borderColor: COLORS.border }}>
           <TouchableOpacity style={styles.primaryButton} onPress={submitInspection}>
             <Text style={styles.primaryButtonText}>Kirim Laporan ({scores.length} Item)</Text>
           </TouchableOpacity>
@@ -1330,7 +1330,7 @@ const BatteryServiceFormScreen = ({ route, navigation }: any) => {
 
       </ScrollView>
 
-      <View style={{ padding: 16, backgroundColor: COLORS.surface, borderTopWidth: 1, borderColor: COLORS.border }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40, backgroundColor: COLORS.surface, borderTopWidth: 1, borderColor: COLORS.border }}>
         <TouchableOpacity style={styles.primaryButton} onPress={submitBattery}>
           <Text style={styles.primaryButtonText}>Selesai & Kirim Baterai Report</Text>
         </TouchableOpacity>
