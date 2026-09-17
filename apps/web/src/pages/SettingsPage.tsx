@@ -110,7 +110,7 @@ export const SettingsPage = () => {
         <button 
           onClick={handleSave}
           disabled={isSaving}
-          className="bg-primary text-on-primary px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-on-primary-fixed-variant transition-colors cursor-pointer disabled:opacity-50"
+          className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
             {isSaving ? 'sync' : 'save'}
@@ -119,23 +119,23 @@ export const SettingsPage = () => {
         </button>
       </div>
 
-      <div className="flex border-b border-outline-variant gap-lg mt-md">
+      <div className="flex border-b border-gray-200 gap-8 mt-6">
         <button 
-          className={`pb-sm font-label-sm text-label-sm transition-colors ${activeTab === 'forklift' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant hover:text-on-surface cursor-pointer'}`}
+          className={`transition-colors flex items-center ${activeTab === 'forklift' ? 'border-b-2 border-primary text-primary font-semibold pb-3' : 'text-gray-500 hover:text-gray-700 pb-3 font-medium'}`}
           onClick={() => setActiveTab('forklift')}
         >
           <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>forklift</span>
           Forklift Template
         </button>
         <button 
-          className={`pb-sm font-label-sm text-label-sm transition-colors ${activeTab === 'battery' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant hover:text-on-surface cursor-pointer'}`}
+          className={`transition-colors flex items-center ${activeTab === 'battery' ? 'border-b-2 border-primary text-primary font-semibold pb-3' : 'text-gray-500 hover:text-gray-700 pb-3 font-medium'}`}
           onClick={() => setActiveTab('battery')}
         >
           <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>battery_charging_full</span>
           Battery Template
         </button>
         <button 
-          className={`pb-sm font-label-sm text-label-sm transition-colors ${activeTab === 'scoring' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant hover:text-on-surface cursor-pointer'}`}
+          className={`transition-colors flex items-center ${activeTab === 'scoring' ? 'border-b-2 border-primary text-primary font-semibold pb-3' : 'text-gray-500 hover:text-gray-700 pb-3 font-medium'}`}
           onClick={() => setActiveTab('scoring')}
         >
           <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>rule</span>
@@ -149,8 +149,8 @@ export const SettingsPage = () => {
         {activeTab === 'forklift' && (
           <div className="bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col md:flex-row flex-1 overflow-hidden">
             {/* Categories Sidebar */}
-            <div className="w-full md:w-64 border-r border-outline-variant bg-surface-container-low flex flex-col">
-              <div className="p-sm border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+            <div className="w-full md:w-64 border-r border-gray-200 bg-gray-50 flex flex-col">
+              <div className="p-sm border-b border-gray-200 flex justify-between items-center">
                 <span className="font-label-sm font-semibold">Categories (Total: {totalVariables} Var)</span>
               </div>
               <ul className="flex-1 overflow-y-auto max-h-[600px]">
@@ -158,7 +158,7 @@ export const SettingsPage = () => {
                   <li key={idx}>
                     <button 
                       onClick={() => setActiveCategory(idx)}
-                      className={`w-full text-left px-md py-sm text-sm border-b border-outline-variant transition-colors flex items-center justify-between cursor-pointer ${activeCategory === idx ? 'bg-primary-container text-on-primary-container font-medium' : 'hover:bg-surface-dim text-on-surface-variant'}`}
+                      className={`w-full text-left flex items-center justify-between cursor-pointer ${activeCategory === idx ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600 font-medium px-4 py-3' : 'text-gray-600 hover:bg-gray-100 border-l-4 border-transparent px-4 py-3 transition-colors'}`}
                     >
                       <span className="flex items-center gap-2">
                         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
@@ -182,29 +182,29 @@ export const SettingsPage = () => {
                 </div>
                 <button 
                   onClick={handleAddVariable}
-                  className="bg-surface-container-high border border-outline-variant text-on-surface px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-surface-dim transition-colors cursor-pointer"
+                  className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
                   Add Variable
                 </button>
               </div>
               <div className="p-md flex-1 overflow-y-auto">
-                <div className="bg-[#fffbeb] border border-[#fef08a] p-sm rounded mb-md flex items-start gap-sm text-sm text-[#854d0e]">
+                <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-6 flex gap-3 text-sm">
                   <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>info</span>
                   <p>Terdapat total <b>{totalVariables} Variabel</b> form Forklift yang mereplikasi formulir standar PT United Multilift Perkasa.</p>
                 </div>
                 
-                <ul className="flex flex-col gap-sm">
+                <ul className="flex flex-col">
                   {categories[activeCategory].items.map((item, idx) => (
-                    <li key={idx} className="border border-outline-variant rounded p-sm flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+                    <li key={idx} className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition-shadow mb-3 group">
                       <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-outline cursor-grab" style={{ fontSize: '18px' }}>drag_indicator</span>
                         <span className="font-medium text-sm">{item}</span>
                       </div>
                       <div className="flex items-center gap-4 text-xs font-medium opacity-50">
-                        <span className="border px-2 py-0.5 rounded border-error text-error bg-error-container">1 (Buruk)</span>
-                        <span className="border px-2 py-0.5 rounded border-[#b45309] text-[#b45309] bg-[#fef3c7]">2 (Cukup)</span>
-                        <span className="border px-2 py-0.5 rounded border-[#166534] text-[#166534] bg-[#dcfce7]">3 (Baik)</span>
+                        <span className="bg-error-container text-on-error-container border border-error/20 px-2 py-0.5 rounded text-xs font-semibold">1 (Buruk)</span>
+                        <span className="bg-warning-container text-on-warning-container border border-warning/20 px-2 py-0.5 rounded text-xs font-semibold">2 (Cukup)</span>
+                        <span className="bg-success-container text-on-success-container border border-success/20 px-2 py-0.5 rounded text-xs font-semibold">3 (Baik)</span>
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4 cursor-pointer">
                           <button onClick={() => handleEditVariable(idx, item)} className="text-on-surface-variant hover:text-primary p-1 cursor-pointer"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span></button>
                           <button onClick={() => handleDeleteVariable(idx)} className="text-on-surface-variant hover:text-error p-1 cursor-pointer"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span></button>
@@ -381,34 +381,34 @@ export const SettingsPage = () => {
           <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md">
             <h3 className="font-headline-lg text-headline-lg mb-md">Health Thresholds & Labels</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
-              <div className="border border-[#bbf7d0] bg-[#f0fdf4] rounded p-md flex flex-col gap-2">
+              <div className="border border-success/20 bg-success-container rounded p-md flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-[#166534]">Healthy</span>
-                  <span className="bg-[#16a34a] text-white text-xs px-2 py-0.5 rounded">100%</span>
+                  <span className="font-bold text-success">Healthy</span>
+                  <span className="bg-success text-white text-xs px-2 py-0.5 rounded">100%</span>
                 </div>
-                <label className="text-sm text-[#166534] mt-2">Threshold (%)</label>
-                <input type="text" value="80 - 100" readOnly className="border border-[#bbf7d0] bg-white rounded p-1.5 text-sm" />
+                <label className="text-sm text-success mt-2">Threshold (%)</label>
+                <input type="text" value="80 - 100" readOnly className="border border-success/20 bg-white rounded p-1.5 text-sm" />
               </div>
-              <div className="border border-[#fef08a] bg-[#fefce8] rounded p-md flex flex-col gap-2">
+              <div className="border border-warning/20 bg-warning-container rounded p-md flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-[#854d0e]">Attention</span>
-                  <span className="bg-[#eab308] text-white text-xs px-2 py-0.5 rounded">~66%</span>
+                  <span className="font-bold text-warning">Attention</span>
+                  <span className="bg-warning text-white text-xs px-2 py-0.5 rounded">~66%</span>
                 </div>
-                <label className="text-sm text-[#854d0e] mt-2">Threshold (%)</label>
-                <input type="text" value="50 - 79" readOnly className="border border-[#fef08a] bg-white rounded p-1.5 text-sm" />
+                <label className="text-sm text-warning mt-2">Threshold (%)</label>
+                <input type="text" value="50 - 79" readOnly className="border border-warning/20 bg-white rounded p-1.5 text-sm" />
               </div>
-              <div className="border border-[#fecaca] bg-[#fef2f2] rounded p-md flex flex-col gap-2">
+              <div className="border border-error/20 bg-error-container rounded p-md flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-[#991b1b]">Critical</span>
-                  <span className="bg-[#dc2626] text-white text-xs px-2 py-0.5 rounded">&lt; 50%</span>
+                  <span className="font-bold text-error">Critical</span>
+                  <span className="bg-error text-white text-xs px-2 py-0.5 rounded">&lt; 50%</span>
                 </div>
-                <label className="text-sm text-[#991b1b] mt-2">Threshold (%)</label>
-                <input type="text" value="0 - 49" readOnly className="border border-[#fecaca] bg-white rounded p-1.5 text-sm" />
+                <label className="text-sm text-error mt-2">Threshold (%)</label>
+                <input type="text" value="0 - 49" readOnly className="border border-error/20 bg-white rounded p-1.5 text-sm" />
               </div>
             </div>
             
             <h3 className="font-headline-lg text-headline-lg mb-sm">Calculation Rule</h3>
-            <div className="bg-surface-container-low p-md rounded border border-outline-variant">
+            <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mt-6">
               <code className="text-sm text-primary block mb-2 font-bold bg-white p-2 border border-outline-variant rounded">Formula: (Total Score / (Total Variables × 3)) × 100%</code>
               <p className="text-sm text-on-surface-variant mt-2">Contoh:</p>
               <ul className="text-sm text-on-surface-variant list-disc ml-5 mt-1">

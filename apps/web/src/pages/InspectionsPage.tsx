@@ -99,17 +99,17 @@ export const InspectionsPage = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">Inspection Management</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-xs">View tasks and schedule new inspections</p>
+          <h2 className="text-2xl font-bold text-gray-900">Inspection Management</h2>
+          <p className="text-base text-gray-500 mt-1">View tasks and schedule new inspections</p>
         </div>
         {canSchedule && (
           <button 
             onClick={() => setShowScheduleForm(!showScheduleForm)}
-            className="bg-primary text-on-primary px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
+            className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               {showScheduleForm ? 'close' : 'calendar_add_on'}
             </span>
             {showScheduleForm ? 'Batal' : 'Jadwalkan Tugas'}
@@ -118,23 +118,23 @@ export const InspectionsPage = () => {
       </div>
 
       {showScheduleForm && (
-        <div className="mt-md bg-surface-container-lowest border border-outline-variant p-md rounded-lg shadow-sm">
-          <h3 className="font-headline-lg text-primary mb-sm flex items-center gap-2">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined">assignment_ind</span>
             Buat Jadwal Inspeksi Baru
           </h3>
-          <form onSubmit={handleSchedule} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-md mt-4">
+          <form onSubmit={handleSchedule} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1">Tipe Aset</label>
-              <select value={assetType} onChange={e => {setAssetType(e.target.value); setAssetId('');}} className="border border-outline-variant rounded p-2 bg-surface-bright text-sm outline-none focus:border-primary">
+              <label className="text-sm font-medium text-gray-700 mb-1">Tipe Aset</label>
+              <select value={assetType} onChange={e => {setAssetType(e.target.value); setAssetId('');}} className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none">
                 <option value="FORKLIFT">Forklift</option>
                 <option value="BATTERY">Battery</option>
               </select>
             </div>
             
             <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1">Pilih Aset *</label>
-              <select value={assetId} onChange={e => setAssetId(e.target.value)} required className="border border-outline-variant rounded p-2 bg-surface-bright text-sm outline-none focus:border-primary">
+              <label className="text-sm font-medium text-gray-700 mb-1">Pilih Aset *</label>
+              <select value={assetId} onChange={e => setAssetId(e.target.value)} required className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none">
                 <option value="">-- Pilih --</option>
                 {assetType === 'FORKLIFT' ? forklifts.map(f => (
                   <option key={f.id} value={f.id}>{f.asset_code} {f.model ? `(${f.model})` : ''}</option>
@@ -145,8 +145,8 @@ export const InspectionsPage = () => {
             </div>
             
             <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1">Tugaskan ke Mekanik *</label>
-              <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)} required className="border border-outline-variant rounded p-2 bg-surface-bright text-sm outline-none focus:border-primary">
+              <label className="text-sm font-medium text-gray-700 mb-1">Tugaskan ke Mekanik *</label>
+              <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)} required className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none">
                 <option value="">-- Pilih Mekanik --</option>
                 {mechanics.map(m => (
                   <option key={m.id} value={m.id}>{m.full_name}</option>
@@ -155,14 +155,14 @@ export const InspectionsPage = () => {
             </div>
             
             <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1">Jadwal Inspeksi *</label>
-              <input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} required className="border border-outline-variant rounded p-2 bg-surface-bright text-sm outline-none focus:border-primary" />
+              <label className="text-sm font-medium text-gray-700 mb-1">Jadwal Inspeksi *</label>
+              <input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} required className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none" />
             </div>
             
             <div className="flex flex-col justify-end">
               <button 
                 type="submit" 
-                className="bg-primary text-on-primary py-2 rounded text-sm font-bold hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
+                className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all h-11 cursor-pointer flex items-center justify-center gap-2"
               >
                 Buat Tugas
               </button>
@@ -171,15 +171,15 @@ export const InspectionsPage = () => {
         </div>
       )}
 
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md">
-        <div className="p-md border-b border-outline-variant flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-surface-bright">
-          <h3 className="font-semibold">Inspection Tasks</h3>
-          <div className="flex flex-wrap gap-2">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+        <div className="bg-gray-50 border-b border-gray-200 p-4 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <h3 className="font-semibold text-gray-900 hidden sm:block">Inspection Tasks</h3>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <input 
               type="date"
               value={dateFilter}
               onChange={e => setDateFilter(e.target.value)}
-              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary text-on-surface-variant"
+              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
               title="Filter by Schedule Date"
             />
             <input 
@@ -187,12 +187,12 @@ export const InspectionsPage = () => {
               placeholder="Search code or mechanic..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary"
+              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             />
             <select 
               value={typeFilter} 
               onChange={e => setTypeFilter(e.target.value)} 
-              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary"
+              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             >
               <option value="ALL">All Types</option>
               <option value="FORKLIFT">Forklift</option>
@@ -201,7 +201,7 @@ export const InspectionsPage = () => {
             <select 
               value={statusFilter} 
               onChange={e => setStatusFilter(e.target.value)} 
-              className="border border-outline-variant rounded p-1.5 bg-surface-lowest text-sm outline-none focus:border-primary"
+              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             >
               <option value="ALL">All Status</option>
               <option value="SCHEDULED">Scheduled</option>
@@ -212,38 +212,39 @@ export const InspectionsPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
-                <th className="p-sm pl-md font-label-sm text-label-sm font-semibold">Date</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Asset Code</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Type</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Mechanic</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Status</th>
-                <th className="p-sm pr-md font-label-sm text-label-sm font-semibold text-right">Actions</th>
+              <tr className="bg-gray-50/80 border-b border-gray-200">
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Asset Code</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Mechanic</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="font-body-md text-body-md text-on-background">
+            <tbody className="text-sm text-gray-700">
               {loading ? (
-                <tr><td colSpan={6} className="p-4 text-center">Loading...</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">Loading...</td></tr>
               ) : filteredTasks.length === 0 ? (
-                <tr><td colSpan={6} className="p-4 text-center">No tasks found matching filters</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No tasks found matching filters</td></tr>
               ) : filteredTasks.map(t => (
-                <tr key={t.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
-                  <td className="p-sm pl-md">{new Date(t.scheduled_date).toLocaleDateString()}</td>
-                  <td className="p-sm font-medium text-primary">{t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code}</td>
-                  <td className="p-sm">{t.asset_type}</td>
-                  <td className="p-sm">{t.mechanic_name || t.assigned_to}</td>
-                  <td className="p-sm">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                      t.status === 'COMPLETED' ? 'bg-[#dcfce7] text-[#166534]' : 
-                      t.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100'
+                <tr key={t.id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 group">
+                  <td className="px-4 py-3">{new Date(t.scheduled_date).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 font-medium text-primary">{t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code}</td>
+                  <td className="px-4 py-3">{t.asset_type}</td>
+                  <td className="px-4 py-3">{t.mechanic_name || t.assigned_to}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
+                      t.status === 'COMPLETED' ? 'bg-success-container text-on-success-container border-success/20' : 
+                      t.status === 'SCHEDULED' ? 'bg-primary-container text-on-primary-container border-primary/20' : 
+                      'bg-gray-100 text-gray-600 border-gray-200'
                     }`}>
                       {t.status}
                     </span>
                   </td>
-                  <td className="p-sm pr-md text-right">
+                  <td className="px-4 py-3 text-right">
                     {canSchedule && (
                       <button 
-                        className="text-error hover:underline text-sm font-medium cursor-pointer text-[#dc2626]"
+                        className="text-error hover:underline text-sm font-medium cursor-pointer"
                         onClick={() => handleDelete(t.id)}
                       >
                         Delete

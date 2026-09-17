@@ -54,44 +54,42 @@ export const QRCodesPage = () => {
     <>
       {/* Hide this entire header and filter section when printing */}
       <div className="print:hidden">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="font-headline-xl text-headline-xl text-on-background">QR Code Management</h2>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Generate and print QR codes for assets</p>
+            <h2 className="text-2xl font-bold text-gray-900">QR Code Management</h2>
+            <p className="text-base text-gray-500 mt-1">Generate and print QR codes for assets</p>
           </div>
-          <div className="flex gap-sm">
+          <div className="flex gap-2">
             <button 
               onClick={handlePrintAll}
-              className="bg-primary text-on-primary px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
+              className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>print</span>
+              <span className="material-symbols-outlined text-[18px]">print</span>
               Print All (Visible)
             </button>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md mt-md mb-md">
-          <div className="flex flex-col sm:flex-row gap-md items-start sm:items-center">
-            <span className="text-sm font-medium">Filter:</span>
-            <select 
-              value={filter} 
-              onChange={e => setFilter(e.target.value)} 
-              className="border border-outline-variant rounded p-1 text-sm bg-surface-container-low outline-none"
-            >
-              <option value="ALL">All Assets</option>
-              <option value="FORKLIFT">Forklift</option>
-              <option value="BATTERY">Battery</option>
-            </select>
-            <div className="relative w-full sm:w-64 ml-auto">
-              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
-              <input 
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1 text-sm h-8 outline-none focus:border-primary" 
-                placeholder="Search code/model..." 
-                type="text"
-              />
-            </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mt-6 mb-6 flex flex-col sm:flex-row gap-4 items-center">
+          <span className="text-sm font-medium text-gray-700">Filter:</span>
+          <select 
+            value={filter} 
+            onChange={e => setFilter(e.target.value)} 
+            className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary w-full sm:w-auto outline-none"
+          >
+            <option value="ALL">All Assets</option>
+            <option value="FORKLIFT">Forklift</option>
+            <option value="BATTERY">Battery</option>
+          </select>
+          <div className="relative w-full sm:w-64 ml-auto">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
+            <input 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" 
+              placeholder="Search code/model..." 
+              type="text"
+            />
           </div>
         </div>
       </div>
@@ -99,9 +97,9 @@ export const QRCodesPage = () => {
       {loading ? (
         <div className="text-center p-8 print:hidden">Loading assets...</div>
       ) : filteredAssets.length === 0 ? (
-        <div className="text-center p-8 text-on-surface-variant print:hidden">No assets found</div>
+        <div className="text-center p-8 text-gray-500 print:hidden">No assets found</div>
       ) : (
-        <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ${printTargetId === null ? 'print:grid-cols-4 print:gap-8' : 'print:block'}`}>
+        <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 ${printTargetId === null ? 'print:grid-cols-4 print:gap-8' : 'print:block'}`}>
           {filteredAssets.map(asset => {
             const isTarget = printTargetId === asset.id;
             const isSinglePrintMode = printTargetId !== null;
@@ -109,31 +107,32 @@ export const QRCodesPage = () => {
             return (
               <div 
                 key={asset.id} 
-                className={`border border-outline-variant rounded-lg p-4 flex flex-col items-center gap-3 hover:bg-surface-container-low transition-colors print:bg-white print:break-inside-avoid
+                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center gap-4 hover:shadow-md hover:border-primary/30 transition-all print:bg-white print:border-none print:shadow-none print:p-0 print:break-inside-avoid
                   ${isSinglePrintMode && !isTarget ? 'print:hidden' : ''}
                   ${isTarget ? 'print:fixed print:inset-0 print:m-0 print:w-full print:h-full print:border-none print:flex print:flex-col print:items-center print:justify-center print:p-8' : 'print:border-2 print:border-black print:p-2'}
                 `}
               >
-                <div className={`w-full bg-white rounded flex items-center justify-center border border-gray-100 print:border-none p-2 ${isTarget ? 'print:w-full print:max-w-[70vw] print:max-h-[70vh] print:aspect-square' : 'aspect-square'}`}>
+                <div className={`p-3 border border-gray-100 rounded-lg bg-white w-full flex items-center justify-center print:border-none print:p-0 ${isTarget ? 'print:w-full print:max-w-[70vw] print:max-h-[70vh] print:aspect-square' : 'aspect-square'}`}>
                   <QRCodeSVG 
                     value={getQRData(asset)} 
                     size={isTarget ? 1000 : 120} 
-                    style={{ width: "100%", height: "auto", maxWidth: "100%", maxHeight: "100%" }}
+                    className="w-full h-auto max-w-full max-h-full"
                     level="M"
                     includeMargin={false}
                   />
                 </div>
                 <div className="text-center w-full">
-                  <p className={`font-asset-id text-primary font-bold print:text-black ${isTarget ? 'print:text-5xl print:mt-6' : 'print:text-lg'}`}>{asset.asset_code}</p>
-                  <p className={`text-on-surface-variant font-medium print:text-gray-800 ${isTarget ? 'print:text-3xl print:mt-2' : 'text-xs'}`}>{asset.type}</p>
-                  <p className={`text-on-surface-variant opacity-75 print:text-gray-600 mt-1 ${isTarget ? 'print:text-2xl print:mt-2' : 'text-[10px]'}`}>{asset.model || asset.brand || '-'}</p>
+                  <p className={`font-asset-id text-gray-900 font-bold text-base print:text-black ${isTarget ? 'print:text-5xl print:mt-6' : 'print:text-lg'}`}>{asset.asset_code}</p>
+                  <p className={`text-primary font-semibold text-xs print:text-gray-800 ${isTarget ? 'print:text-3xl print:mt-2' : ''}`}>{asset.type}</p>
+                  <p className={`text-gray-500 text-xs mt-1 print:text-gray-600 ${isTarget ? 'print:text-2xl print:mt-2' : ''}`}>{asset.model || asset.brand || '-'}</p>
                 </div>
                 <button 
                   onClick={() => handlePrintSingle(asset.id)}
-                  className="w-full mt-auto bg-surface-container-high border border-outline-variant rounded py-1.5 flex justify-center hover:bg-surface-dim print:hidden cursor-pointer transition-colors"
+                  className="w-full mt-auto bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-lg py-2 flex items-center justify-center gap-2 text-sm font-medium transition-colors print:hidden cursor-pointer"
                   title="Print this QR Code only"
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>print</span>
+                  <span className="material-symbols-outlined text-[18px]">print</span>
+                  Print
                 </button>
               </div>
             );

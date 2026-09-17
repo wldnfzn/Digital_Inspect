@@ -27,24 +27,24 @@ export const AuditLogPage = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">Audit Log</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-xs">System activity and security logs (Read-only)</p>
+          <h2 className="text-2xl font-bold text-gray-900">Audit Log</h2>
+          <p className="text-base text-gray-500 mt-1">System activity and security logs (Read-only)</p>
         </div>
-        <button className="bg-surface-container-lowest border border-outline-variant text-on-surface-variant px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:border-outline transition-colors">
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>download</span>
+        <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-gray-50 shadow-sm transition-colors cursor-pointer">
+          <span className="material-symbols-outlined text-[18px]">download</span>
           Export Logs
         </button>
       </div>
 
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md">
-        <div className="p-md border-b border-outline-variant flex flex-col sm:flex-row justify-between items-center gap-md bg-surface-bright">
-          <div className="flex gap-md w-full sm:w-auto">
+      <div className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col mt-6">
+        <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
-              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
               <input 
-                className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 text-body-md h-8 focus:border-primary focus:ring-1 focus:ring-primary outline-none" 
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" 
                 placeholder="Search action or user..." 
                 type="text"
                 value={searchTerm}
@@ -52,7 +52,7 @@ export const AuditLogPage = () => {
               />
             </div>
             <select 
-              className="border border-outline-variant rounded-lg px-2 text-sm bg-surface-container-low h-8 outline-none focus:border-primary"
+              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none w-full sm:w-auto transition-all"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
             >
@@ -65,32 +65,40 @@ export const AuditLogPage = () => {
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
-                <th className="p-sm pl-md font-label-sm text-label-sm font-semibold w-48">Timestamp</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold w-48">User</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold w-40">Action</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold w-48">Target</th>
-                <th className="p-sm pr-md font-label-sm text-label-sm font-semibold">Details</th>
+          <table className="w-full text-left border-collapse min-w-max divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
               </tr>
             </thead>
-            <tbody className="font-body-md text-body-md text-on-background">
+            <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center">Loading audit logs...</td></tr>
+                <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">Loading audit logs...</td></tr>
               ) : filteredLogs.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-on-surface-variant">No logs found</td></tr>
+                <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">No logs found</td></tr>
               ) : filteredLogs.map((log) => (
-                <tr key={log.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                  <td className="p-sm pl-md text-on-surface-variant font-asset-id text-xs">{new Date(log.created_at).toLocaleString()}</td>
-                  <td className="p-sm font-medium">{log.user_name || 'System'}</td>
-                  <td className="p-sm">
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-primary-fixed-dim text-on-primary-fixed font-label-sm text-[10px] border border-primary-fixed uppercase tracking-wider">
+                <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                    {new Date(log.created_at).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {log.user_name || 'System'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold uppercase tracking-wider">
                       {log.action.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="p-sm text-on-surface-variant">{log.target}</td>
-                  <td className="p-sm pr-md text-on-surface-variant text-sm">{log.details}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {log.target}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    {log.details}
+                  </td>
                 </tr>
               ))}
             </tbody>

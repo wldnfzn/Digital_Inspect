@@ -75,14 +75,14 @@ export const ReportsPage = () => {
         </button>
       </div>
 
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md shadow-sm">
-        <div className="p-md border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center bg-surface-bright gap-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col mt-6">
+        <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4">
           <div className="relative w-full sm:w-64">
-            <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
+            <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-body-md">search</span>
             <input 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 text-body-md h-8 focus:border-primary outline-none" 
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 text-body-md h-9 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow" 
               placeholder="Search reports..." 
               type="text"
             />
@@ -92,7 +92,7 @@ export const ReportsPage = () => {
             <select 
               value={typeFilter} 
               onChange={e => setTypeFilter(e.target.value)}
-              className="border border-outline-variant rounded-lg p-1.5 bg-surface-container-low text-sm outline-none focus:border-primary"
+              className="border border-gray-200 rounded-lg p-1.5 bg-gray-50 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow h-9"
             >
               <option value="ALL">All Asset Types</option>
               <option value="FORKLIFT">Forklifts Only</option>
@@ -137,23 +137,23 @@ export const ReportsPage = () => {
                     <td className="p-sm">
                       {r.asset_type === 'FORKLIFT' ? (
                         <span className={`inline-flex items-center gap-xs px-2 py-0.5 rounded-full font-label-sm text-label-sm border ${
-                          r.status === 'CRITICAL' ? 'bg-[#fee2e2] text-[#991b1b] border-[#fecaca]' :
-                          r.status === 'ATTENTION' ? 'bg-[#fef3c7] text-[#b45309] border-[#fde68a]' :
-                          'bg-[#dcfce7] text-[#166534] border-[#bbf7d0]'
+                          r.status === 'CRITICAL' ? 'bg-error-container text-on-error-container border-error/20' :
+                          r.status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container border-warning/20' :
+                          'bg-success-container text-on-success-container border-success/20'
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${
-                            r.status === 'CRITICAL' ? 'bg-[#dc2626]' :
-                            r.status === 'ATTENTION' ? 'bg-[#f59e0b]' :
-                            'bg-[#16a34a]'
+                            r.status === 'CRITICAL' ? 'bg-error' :
+                            r.status === 'ATTENTION' ? 'bg-warning' :
+                            'bg-success'
                           }`}></span> {r.score}%
                         </span>
                       ) : (
                         <span className={`inline-flex items-center gap-xs px-2 py-0.5 rounded-full font-label-sm text-label-sm border ${
-                          r.status === 'ATTENTION' ? 'bg-[#fef3c7] text-[#b45309] border-[#fde68a]' :
-                          'bg-[#dcfce7] text-[#166534] border-[#bbf7d0]'
+                          r.status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container border-warning/20' :
+                          'bg-success-container text-on-success-container border-success/20'
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${
-                            r.status === 'ATTENTION' ? 'bg-[#f59e0b]' : 'bg-[#16a34a]'
+                            r.status === 'ATTENTION' ? 'bg-warning' : 'bg-success'
                           }`}></span> {r.score}V
                         </span>
                       )}
@@ -187,20 +187,20 @@ export const ReportsPage = () => {
       )}
 
       {selectedReport && !loadingDetail && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 print:static print:block print:p-0">
-          <div className="bg-surface-bright rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden print:max-h-none print:shadow-none print:w-full print:max-w-none print:overflow-visible print:block print:rounded-none">
-            <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:static print:block print:p-0">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden print:max-h-none print:shadow-none print:w-full print:max-w-none print:overflow-visible print:block print:rounded-none">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <h3 className="font-headline-sm text-headline-sm">
                 Report Detail - {selectedReport.asset_code}
                 <span className="text-sm font-normal text-on-surface-variant ml-2">
                   (No: {selectedReport.additional_data?.service_report_no || selectedReport.full_report_data?.service_report_no || 'N/A'})
                 </span>
               </h3>
-              <div className="flex gap-2">
-                <button onClick={() => window.print()} className="no-print bg-primary text-on-primary px-3 py-1 rounded text-sm cursor-pointer hover:opacity-90 flex items-center gap-1">
+              <div className="flex gap-2 items-center">
+                <button onClick={() => window.print()} className="no-print bg-primary hover:bg-primary-fixed-variant text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 cursor-pointer transition-colors">
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>print</span> Print PDF
                 </button>
-                <button onClick={() => setSelectedReport(null)} className="no-print material-symbols-outlined cursor-pointer text-on-surface-variant hover:text-on-surface">close</button>
+                <button onClick={() => setSelectedReport(null)} className="no-print material-symbols-outlined cursor-pointer text-gray-500 hover:text-gray-800 ml-2 transition-colors">close</button>
               </div>
             </div>
             
@@ -211,7 +211,7 @@ export const ReportsPage = () => {
                   <h2 className="text-lg">No: {selectedReport.additional_data?.service_report_no || selectedReport.full_report_data?.service_report_no || 'N/A'}</h2>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6 text-body-md border border-gray-300 p-4">
+                <div className="grid grid-cols-2 gap-6 p-6 bg-gray-50/50 border border-gray-200 rounded-xl mb-6 text-body-md print:border-gray-300 print:p-4 print:gap-4 print:rounded-none print:bg-transparent">
                   {selectedReportType === 'FORKLIFT' && (
                     <>
                       <div><strong>Model:</strong> {selectedReport.model || '-'}</div>
@@ -253,7 +253,7 @@ export const ReportsPage = () => {
                           <tr key={idx}>
                             <td className="border border-gray-300 p-2 text-sm">{s.category_name}</td>
                             <td className="border border-gray-300 p-2 text-sm">{s.item_name} {s.photo_url && <a href={s.photo_url} target="_blank" rel="noreferrer" className="text-blue-500 underline ml-2 no-print">(Bukti Foto)</a>}</td>
-                            <td className={`border border-gray-300 p-2 text-center font-bold ${s.score === 3 ? 'text-green-600' : s.score === 2 ? 'text-yellow-600' : 'text-red-600'}`}>{s.score}</td>
+                            <td className={`border border-gray-300 p-2 text-center font-bold ${s.score === 3 ? 'text-success' : s.score === 2 ? 'text-warning' : 'text-error'}`}>{s.score}</td>
                           </tr>
                         ))}
                       </tbody>

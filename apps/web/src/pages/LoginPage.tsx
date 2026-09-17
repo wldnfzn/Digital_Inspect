@@ -18,15 +18,15 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-surface flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-surface-container-lowest border border-outline-variant p-8 rounded-xl shadow-lg">
+    <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center p-4">
+      <div className="max-w-lg w-full bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-primary mb-2">UMP Digital Inspect</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">UMP Digital Inspect</h1>
           <p className="text-on-surface-variant text-sm">Please sign in to your account</p>
         </div>
         
         {error && (
-          <div className="bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] p-3 rounded mb-4 text-sm">
+          <div className="bg-error-container text-on-error-container p-4 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
@@ -38,7 +38,7 @@ export const LoginPage = () => {
               type="email" 
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+              className="w-full h-12 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" 
               required
             />
           </div>
@@ -48,13 +48,13 @@ export const LoginPage = () => {
               type="password" 
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+              className="w-full h-12 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" 
               required
             />
           </div>
           <button 
             type="submit"
-            className="w-full bg-primary text-on-primary py-2.5 rounded font-bold hover:bg-on-primary-fixed-variant transition-colors mt-4"
+            className="w-full h-12 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-md transition-colors mt-4"
           >
             Sign In
           </button>

@@ -84,25 +84,25 @@ export const CustomersPage = () => {
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">Customer Management</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Manage your customers and their associated assets</p>
+          <h2 className="text-2xl font-bold text-gray-900">Customer Management</h2>
+          <p className="text-base text-gray-500 mt-xs">Manage your customers and their associated assets</p>
         </div>
         {canEdit && (
-          <button onClick={openAddModal} className="bg-primary text-on-primary px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-on-primary-fixed-variant transition-colors cursor-pointer">
+          <button onClick={openAddModal} className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all flex items-center gap-xs cursor-pointer">
             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
             Add Customer
           </button>
         )}
       </div>
 
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md shadow-sm">
-        <div className="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
-            <div className="relative w-80 hidden sm:block">
-              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col mt-6">
+        <div className="bg-gray-50 border-b border-gray-200 p-4 flex gap-4">
+            <div className="relative w-full">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">search</span>
               <input 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 text-body-md h-8 focus:border-primary outline-none" 
+                className="bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary w-full max-w-md outline-none" 
                 placeholder="Search name, contact, location..." 
                 type="text"
               />
@@ -111,25 +111,25 @@ export const CustomersPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
-                <th className="p-sm pl-md font-label-sm text-label-sm font-semibold">Customer Name</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Location</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Contact Person</th>
-                <th className="p-sm pr-md font-label-sm text-label-sm font-semibold">Actions</th>
+              <tr className="bg-gray-50 text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                <th className="p-4 pl-6">Customer Name</th>
+                <th className="p-4">Location</th>
+                <th className="p-4">Contact Person</th>
+                <th className="p-4 pr-6">Actions</th>
               </tr>
             </thead>
-            <tbody className="font-body-md text-body-md text-on-background">
+            <tbody className="text-sm text-gray-900">
               {loading ? (
-                <tr><td colSpan={4} className="p-8 text-center">Loading customers...</td></tr>
+                <tr><td colSpan={4} className="p-8 text-center text-sm">Loading customers...</td></tr>
               ) : filteredCustomers.length === 0 ? (
-                <tr><td colSpan={4} className="p-8 text-center">No customers found</td></tr>
+                <tr><td colSpan={4} className="p-8 text-center text-sm">No customers found</td></tr>
               ) : (
                 filteredCustomers.map(c => (
-                  <tr key={c.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
-                    <td className="p-sm pl-md font-medium">{c.name}</td>
-                    <td className="p-sm text-on-surface-variant">{c.location || '-'}</td>
-                    <td className="p-sm text-on-surface-variant">{c.contact_person || '-'} <br/><span className="text-xs opacity-75">{c.contact_phone}</span></td>
-                    <td className="p-sm pr-md">
+                  <tr key={c.id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 group">
+                    <td className="p-4 pl-6 font-medium">{c.name}</td>
+                    <td className="p-4 text-gray-500">{c.location || '-'}</td>
+                    <td className="p-4 text-gray-500">{c.contact_person || '-'} <br/><span className="text-sm opacity-75">{c.contact_phone}</span></td>
+                    <td className="p-4 pr-6">
                       {canEdit && (
                         <div className="flex gap-2">
                           <button onClick={() => openEditModal(c)} className="text-primary hover:underline text-sm font-medium cursor-pointer">Edit</button>
@@ -146,61 +146,63 @@ export const CustomersPage = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-xl p-6 w-full max-w-md shadow-lg border border-outline-variant">
-            <h3 className="text-xl font-bold text-on-background mb-4">
-              {modalMode === 'add' ? 'Add New Customer' : 'Edit Customer'}
-            </h3>
-            <form onSubmit={handleSave} className="space-y-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slideUp overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {modalMode === 'add' ? 'Add New Customer' : 'Edit Customer'}
+              </h3>
+            </div>
+            <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-1">Customer Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>
                 <input 
                   required
                   type="text" 
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">Location</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
                 <input 
                   type="text" 
                   value={formData.location}
                   onChange={e => setFormData({...formData, location: e.target.value})}
-                  className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">Contact Person</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
                 <input 
                   type="text" 
                   value={formData.contact_person}
                   onChange={e => setFormData({...formData, contact_person: e.target.value})}
-                  className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">Contact Phone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
                 <input 
                   type="text" 
                   value={formData.contact_phone}
                   onChange={e => setFormData({...formData, contact_phone: e.target.value})}
-                  className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                 />
               </div>
-              <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-outline-variant">
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 mt-6 -mx-6 -mb-6">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-outline-variant rounded hover:bg-surface-container-low transition-colors cursor-pointer"
+                  className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-lg font-medium cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className="bg-primary text-on-primary px-4 py-2 rounded font-bold hover:bg-on-primary-fixed-variant transition-colors disabled:opacity-50 cursor-pointer"
+                  className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg font-medium cursor-pointer disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>

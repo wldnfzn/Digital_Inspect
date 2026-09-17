@@ -113,29 +113,29 @@ export const AssetsPage = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">Asset Management</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Manage Forklifts and Batteries</p>
+          <h2 className="text-2xl font-bold text-gray-900">Asset Management</h2>
+          <p className="text-base text-gray-500 mt-1">Manage Forklifts and Batteries</p>
         </div>
         {canEdit && (
-          <button onClick={openAddModal} className="bg-primary text-on-primary px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-on-primary-fixed-variant transition-colors cursor-pointer">
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
+          <button onClick={openAddModal} className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all flex items-center gap-2 cursor-pointer">
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
             Add {tab === 'forklift' ? 'Forklift' : 'Battery'}
           </button>
         )}
       </div>
 
-      <div className="flex border-b border-outline-variant gap-lg mt-md">
+      <div className="flex border-b border-gray-200 gap-8 mt-6">
         <button 
-          className={`pb-sm font-label-sm text-label-sm transition-colors cursor-pointer ${tab === 'forklift' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+          className={`pb-3 text-sm transition-colors cursor-pointer ${tab === 'forklift' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-500 hover:text-gray-700 font-medium'}`}
           onClick={() => { setSearch(''); setTab('forklift'); }}
         >
           <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>forklift</span>
           Forklifts
         </button>
         <button 
-          className={`pb-sm font-label-sm text-label-sm transition-colors cursor-pointer ${tab === 'battery' ? 'border-b-2 border-primary text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+          className={`pb-3 text-sm transition-colors cursor-pointer ${tab === 'battery' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-500 hover:text-gray-700 font-medium'}`}
           onClick={() => { setSearch(''); setTab('battery'); }}
         >
           <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>battery_charging_full</span>
@@ -143,14 +143,14 @@ export const AssetsPage = () => {
         </button>
       </div>
 
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-md shadow-sm">
-        <div className="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
-          <div className="relative w-64 hidden sm:block">
-            <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+        <div className="bg-gray-50 border-b border-gray-200 p-4 flex flex-col sm:flex-row gap-4">
+          <div className="relative w-full sm:w-64">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
             <input 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 text-body-md h-8 outline-none focus:border-primary" 
+              className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" 
               placeholder={`Search ${tab}s...`} 
               type="text"
             />
@@ -159,48 +159,48 @@ export const AssetsPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
-                <th className="p-sm pl-md font-label-sm text-label-sm font-semibold">Asset Code</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">{tab === 'forklift' ? 'Model' : 'Brand'}</th>
-                {tab === 'forklift' && <th className="p-sm font-label-sm text-label-sm font-semibold">Year</th>}
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Customer</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">{tab === 'forklift' ? 'Health Score' : 'Voltage'}</th>
-                <th className="p-sm pr-md font-label-sm text-label-sm font-semibold">Actions</th>
+              <tr className="bg-gray-50/80 border-b border-gray-200">
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Asset Code</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{tab === 'forklift' ? 'Model' : 'Brand'}</th>
+                {tab === 'forklift' && <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Year</th>}
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Customer</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{tab === 'forklift' ? 'Health Score' : 'Voltage'}</th>
+                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="font-body-md text-body-md text-on-background">
+            <tbody className="text-sm text-gray-700">
               {loading ? (
-                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="p-8 text-center">Loading {tab}s...</td></tr>
+                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="p-8 text-center text-gray-500">Loading {tab}s...</td></tr>
               ) : filteredItems.length === 0 ? (
-                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="p-8 text-center">No {tab}s found</td></tr>
+                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="p-8 text-center text-gray-500">No {tab}s found</td></tr>
               ) : filteredItems.map(item => (
-                <tr key={item.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
-                  <td className="p-sm pl-md font-asset-id text-asset-id font-medium text-primary">{item.asset_code}</td>
-                  <td className="p-sm text-on-surface-variant">
+                <tr key={item.id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 group">
+                  <td className="px-4 py-3 font-medium text-primary">{item.asset_code}</td>
+                  <td className="px-4 py-3 text-gray-600">
                     {tab === 'forklift' ? (item.model || '-') : (item.brand || '-')}
                   </td>
-                  {tab === 'forklift' && <td className="p-sm text-on-surface-variant">{item.year || '-'}</td>}
-                  <td className="p-sm text-on-surface-variant">{item.customer_name || '-'}</td>
-                  <td className="p-sm">
+                  {tab === 'forklift' && <td className="px-4 py-3 text-gray-600">{item.year || '-'}</td>}
+                  <td className="px-4 py-3 text-gray-600">{item.customer_name || '-'}</td>
+                  <td className="px-4 py-3">
                     {tab === 'forklift' ? (
-                      <span className={`inline-flex items-center gap-xs px-2 py-0.5 rounded-full font-label-sm text-label-sm border ${
-                        item.health_status === 'CRITICAL' ? 'bg-[#fee2e2] text-[#991b1b] border-[#fecaca]' :
-                        item.health_status === 'ATTENTION' ? 'bg-[#fef3c7] text-[#b45309] border-[#fde68a]' :
-                        'bg-[#dcfce7] text-[#166534] border-[#bbf7d0]'
+                      <span className={`inline-flex ${
+                        item.health_status === 'CRITICAL' ? 'bg-error-container text-on-error-container border border-error/20 px-2.5 py-1 rounded-full text-xs font-medium items-center gap-1.5' :
+                        item.health_status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container border border-warning/20 px-2.5 py-1 rounded-full text-xs font-medium items-center gap-1.5' :
+                        'bg-success-container text-on-success-container border border-success/20 px-2.5 py-1 rounded-full text-xs font-medium items-center gap-1.5'
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${
-                          item.health_status === 'CRITICAL' ? 'bg-[#dc2626]' :
-                          item.health_status === 'ATTENTION' ? 'bg-[#f59e0b]' :
-                          'bg-[#16a34a]'
+                          item.health_status === 'CRITICAL' ? 'bg-error' :
+                          item.health_status === 'ATTENTION' ? 'bg-warning' :
+                          'bg-success'
                         }`}></span> {item.health_score || 100}%
                       </span>
                     ) : (
-                      <span className="text-on-surface-variant font-medium">{item.voltage ? `${item.voltage}V` : '-'}</span>
+                      <span className="text-gray-600 font-medium">{item.voltage ? `${item.voltage}V` : '-'}</span>
                     )}
                   </td>
-                  <td className="p-sm pr-md">
+                  <td className="px-4 py-3 text-right">
                     {canEdit && (
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 justify-end">
                         <button onClick={() => openEditModal(item)} className="text-primary hover:underline text-sm font-medium cursor-pointer">Edit</button>
                         <button onClick={() => handleDelete(item.id)} className="text-error hover:underline text-sm font-medium cursor-pointer">Delete</button>
                       </div>
@@ -214,20 +214,22 @@ export const AssetsPage = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-xl p-6 w-full max-w-md shadow-lg border border-outline-variant">
-            <h3 className="text-xl font-bold text-on-background mb-4 capitalize">
-              {modalMode === 'add' ? `Add New ${tab}` : `Edit ${tab}`}
-            </h3>
-            <form onSubmit={handleSave} className="space-y-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slideUp overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 capitalize">
+                {modalMode === 'add' ? `Add New ${tab}` : `Edit ${tab}`}
+              </h3>
+            </div>
+            <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-1">Asset Code *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asset Code *</label>
                 <input 
                   required
                   type="text" 
                   value={formData.asset_code}
                   onChange={e => setFormData({...formData, asset_code: e.target.value})}
-                  className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                   placeholder="e.g. FL-001"
                 />
               </div>
@@ -235,22 +237,22 @@ export const AssetsPage = () => {
               {tab === 'forklift' ? (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold mb-1">Model</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
                     <input 
                       type="text" 
                       value={formData.model}
                       onChange={e => setFormData({...formData, model: e.target.value})}
-                      className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                       placeholder="e.g. Toyota 8FD"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1">Year</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
                     <input 
                       type="text" 
                       value={formData.year}
                       onChange={e => setFormData({...formData, year: e.target.value})}
-                      className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                       placeholder="e.g. 2021"
                     />
                   </div>
@@ -258,32 +260,32 @@ export const AssetsPage = () => {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold mb-1">Brand</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
                     <input 
                       type="text" 
                       value={formData.brand}
                       onChange={e => setFormData({...formData, brand: e.target.value})}
-                      className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1">Voltage (V)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Voltage (V)</label>
                     <input 
                       type="text" 
                       value={formData.voltage}
                       onChange={e => setFormData({...formData, voltage: e.target.value})}
-                      className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none" 
+                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
                     />
                   </div>
                 </>
               )}
 
               <div>
-                <label className="block text-sm font-semibold mb-1">Assign to Customer</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Assign to Customer</label>
                 <select
                   value={formData.customer_id}
                   onChange={e => setFormData({...formData, customer_id: e.target.value})}
-                  className="w-full border border-outline-variant rounded p-2 bg-surface-bright focus:border-primary outline-none"
+                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none"
                 >
                   <option value="">-- No Customer --</option>
                   {customers.map(c => (
@@ -292,18 +294,18 @@ export const AssetsPage = () => {
                 </select>
               </div>
 
-              <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-outline-variant">
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 -mx-6 -mb-6 mt-6">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-outline-variant rounded hover:bg-surface-container-low transition-colors cursor-pointer"
+                  className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-lg font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className="bg-primary text-on-primary px-4 py-2 rounded font-bold hover:bg-on-primary-fixed-variant transition-colors disabled:opacity-50 cursor-pointer"
+                  className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
