@@ -26,10 +26,10 @@ export const AuditLogPage = () => {
   );
 
   return (
-    <>
+    <div className="w-full flex flex-col p-gutter-lg space-y-gutter-lg max-w-[1600px] mx-auto print:p-0 print:space-y-0">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">Audit Log</h2>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Audit Log</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-xs">System activity and security logs (Read-only)</p>
         </div>
         <button className="bg-surface-container-lowest border border-outline-variant text-on-surface-variant px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:border-outline transition-colors">
@@ -67,7 +67,7 @@ export const AuditLogPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
+              <tr className="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                 <th className="p-sm pl-md font-label-sm text-label-sm font-semibold w-48">Timestamp</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold w-48">User</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold w-40">Action</th>
@@ -97,6 +97,6 @@ export const AuditLogPage = () => {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 };

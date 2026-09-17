@@ -101,10 +101,10 @@ export const SettingsPage = () => {
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col p-gutter-lg space-y-gutter-lg max-w-[1600px] mx-auto print:p-0 print:space-y-0">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">System Settings</h2>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">System Settings</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Manage inspection templates and scoring rules</p>
         </div>
         <button 
@@ -421,6 +421,6 @@ export const SettingsPage = () => {
         )}
 
       </div>
-    </>
+    </div>
   );
 };

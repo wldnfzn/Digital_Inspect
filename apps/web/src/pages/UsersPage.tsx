@@ -105,10 +105,10 @@ export const UsersPage = () => {
   });
 
   return (
-    <>
+    <div className="w-full flex flex-col p-gutter-lg space-y-gutter-lg max-w-[1600px] mx-auto print:p-0 print:space-y-0">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <h2 className="font-headline-xl text-headline-xl text-on-background">User Management</h2>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">User Management</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Manage system access and user roles</p>
         </div>
         <button 
@@ -150,7 +150,7 @@ export const UsersPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
+              <tr className="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
                 <th className="p-sm pl-md font-label-sm text-label-sm font-semibold">Name</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Email</th>
                 <th className="p-sm font-label-sm text-label-sm font-semibold">Role</th>
@@ -288,6 +288,6 @@ export const UsersPage = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
