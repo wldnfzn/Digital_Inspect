@@ -15,11 +15,11 @@ const Sidebar = () => {
     return (
       <Link 
         to={to} 
-        className={\`flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all group \${
+        className={`flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all group ${
           active 
             ? 'bg-primary text-on-primary font-semibold shadow-sm' 
             : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-semibold'
-        }\`}
+        }`}
       >
         <span className="material-symbols-outlined text-[20px]">{icon}</span>
         <span className="font-label-lg text-label-lg">{label}</span>
@@ -98,7 +98,7 @@ const TopNavBar = () => {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   const handleRead = async (id: string) => {
-    await api.put(\`/notifications/\${id}/read\`);
+    await api.put(`/notifications/${id}/read`);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
   };
 
@@ -144,9 +144,9 @@ const TopNavBar = () => {
                       <div 
                         key={n.id} 
                         onClick={() => handleRead(n.id)}
-                        className={\`p-3 text-sm border-b border-outline-variant/30 cursor-pointer hover:bg-surface-container-low transition-colors \${!n.is_read ? 'bg-primary/5' : ''}\`}
+                        className={`p-3 text-sm border-b border-outline-variant/30 cursor-pointer hover:bg-surface-container-low transition-colors ${!n.is_read ? 'bg-primary/5' : ''}`}
                       >
-                        <p className={\`\${!n.is_read ? 'font-semibold text-on-surface' : 'text-on-surface-variant'}\`}>{n.title}</p>
+                        <p className={`${!n.is_read ? 'font-semibold text-on-surface' : 'text-on-surface-variant'}`}>{n.title}</p>
                         <p className="text-xs text-on-surface-variant mt-1">{n.message}</p>
                       </div>
                     ))
