@@ -237,7 +237,9 @@ export const DashboardPage = () => {
           url += `month=${month}`;
         }
         const response = await api.get(url);
-        if (response.data) setStats(response.data);
+        if (response.data?.data) {
+          setStats(response.data.data);
+        }
       } catch (err) {
         console.error("Error fetching stats:", err);
       }
