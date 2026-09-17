@@ -11,6 +11,34 @@ inspectionsRoutes.use('*', authMiddleware);
 // TASKS (Jadwal)
 // ==========================================
 
+// Delete a task (Admin/Manager only)
+inspectionsRoutes.delete('/tasks/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), async (c) => {
+  try {
+    const { id } = c.req.param();
+    
+    // Check if this task has an associated forklift report
+    const flReport = await sql`SELECT id FROM forklift_inspections WHERE task_id = ${id}`;
+    if (flReport.length > 0) {
+      await sql`DELETE FROM forklift_inspection_scores WHERE inspection_id = ${flReport[0].id}`;
+      await sql`DELETE FROM forklift_inspections WHERE id = ${flReport[0].id}`;
+    }
+
+    // Check if this task has an associated battery report
+    const batReport = await sql`SELECT id FROM battery_service_reports WHERE task_id = ${id}`;
+    if (batReport.length > 0) {
+      await sql`DELETE FROM battery_service_reports WHERE id = ${batReport[0].id}`;
+    }
+
+    // Now delete the task
+    await sql`DELETE FROM inspection_tasks WHERE id = ${id}`;
+    
+    return c.json({ message: 'Task and associated reports deleted successfully' });
+  } catch (error: any) {
+    console.error(error);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
+  }
+});
+
 // Get all tasks (for Manager/Admin)
 inspectionsRoutes.get('/tasks', roleGuard(['SUPER_ADMIN', 'MANAGER', 'DIRECTOR']), async (c) => {
   try {
@@ -27,7 +55,7 @@ inspectionsRoutes.get('/tasks', roleGuard(['SUPER_ADMIN', 'MANAGER', 'DIRECTOR']
     `;
     return c.json({ data: tasks });
   } catch (error: any) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -56,7 +84,7 @@ inspectionsRoutes.post('/schedule', roleGuard(['SUPER_ADMIN', 'MANAGER']), async
     return c.json({ message: 'Task scheduled', data: newTask[0] }, 201);
   } catch (error: any) {
     console.error(error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -76,7 +104,37 @@ inspectionsRoutes.get('/my-tasks', async (c) => {
     `;
     return c.json({ data: tasks });
   } catch (error: any) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
+  }
+});
+
+// Get inspection history for a specific asset
+inspectionsRoutes.get('/asset/:id', async (c) => {
+  try {
+    const { id } = c.req.param();
+    const type = c.req.query('type'); // 'battery' or 'forklift'
+    
+    if (type === 'battery') {
+      const reports = await sql`
+        SELECT b.id, 'BATTERY' as asset_type, b.voltage_reading as score, b.completed_at as date, u.full_name as mechanic_name
+        FROM battery_service_reports b
+        JOIN users u ON b.mechanic_id = u.id
+        WHERE b.battery_id = ${id}
+        ORDER BY b.completed_at DESC
+      `;
+      return c.json({ data: reports });
+    } else {
+      const reports = await sql`
+        SELECT fi.id, 'FORKLIFT' as asset_type, fi.health_percentage as score, fi.health_status as status, fi.completed_at as date, u.full_name as mechanic_name
+        FROM forklift_inspections fi
+        JOIN users u ON fi.mechanic_id = u.id
+        WHERE fi.forklift_id = ${id}
+        ORDER BY fi.completed_at DESC
+      `;
+      return c.json({ data: reports });
+    }
+  } catch (error: any) {
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -98,7 +156,7 @@ inspectionsRoutes.get('/my-history', async (c) => {
     const all = [...forkliftReports, ...batteryReports].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return c.json({ data: all });
   } catch (error: any) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -138,7 +196,7 @@ inspectionsRoutes.post('/forklift', async (c) => {
     const health_status = determineHealthStatus(health_percentage, hasCriticalIssue);
 
     // 2. Start Transaction
-    const result = await (sql as any).begin(async (tx: any) => {
+    const result = await sql.begin(async (tx) => {
       // Generate Service Report No
       const countRes = await tx`SELECT count(*) FROM forklift_inspections WHERE DATE(created_at) = CURRENT_DATE`;
       const count = parseInt(countRes[0].count) + 1;
@@ -169,9 +227,11 @@ inspectionsRoutes.post('/forklift', async (c) => {
         WHERE id = ${forklift_id}
       `;
 
-      // Update Task Status if task_id provided
+      // Update Task Status if task_id provided, otherwise auto-complete pending task
       if (task_id) {
         await tx`UPDATE inspection_tasks SET status = 'COMPLETED' WHERE id = ${task_id}`;
+      } else {
+        await tx`UPDATE inspection_tasks SET status = 'COMPLETED' WHERE forklift_id = ${forklift_id} AND assigned_to = ${user.userId} AND status = 'SCHEDULED'`;
       }
 
       return inspectionId;
@@ -180,7 +240,7 @@ inspectionsRoutes.post('/forklift', async (c) => {
     return c.json({ message: 'Inspection submitted', inspection_id: result }, 201);
   } catch (error: any) {
     console.error(error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 // ==========================================
@@ -196,7 +256,7 @@ inspectionsRoutes.post('/battery', async (c) => {
       return c.json({ error: 'Battery ID is required' }, 400);
     }
 
-    const result = await (sql as any).begin(async (tx: any) => {
+    const result = await sql.begin(async (tx) => {
       // Generate Service Report No
       const countRes = await tx`SELECT count(*) FROM battery_service_reports WHERE DATE(created_at) = CURRENT_DATE`;
       const count = parseInt(countRes[0].count) + 1;
@@ -218,9 +278,11 @@ inspectionsRoutes.post('/battery', async (c) => {
         WHERE id = ${battery_id}
       `;
 
-      // Update Task Status if task_id provided
+      // Update Task Status if task_id provided, otherwise auto-complete pending task
       if (task_id) {
         await tx`UPDATE inspection_tasks SET status = 'COMPLETED' WHERE id = ${task_id}`;
+      } else {
+        await tx`UPDATE inspection_tasks SET status = 'COMPLETED' WHERE battery_id = ${battery_id} AND assigned_to = ${user.userId} AND status = 'SCHEDULED'`;
       }
 
       return report[0].id;
@@ -229,7 +291,7 @@ inspectionsRoutes.post('/battery', async (c) => {
     return c.json({ message: 'Battery service submitted', report_id: result }, 201);
   } catch (error: any) {
     console.error(error);
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -248,7 +310,7 @@ inspectionsRoutes.get('/forklift/:id', async (c) => {
     const scores = await sql`SELECT fis.score, fis.photo_url, i.name as item_name, c.name as category_name FROM forklift_inspection_scores fis JOIN inspection_items i ON fis.item_id = i.id JOIN inspection_categories c ON i.category_id = c.id WHERE fis.inspection_id = ${id}`;
     return c.json({ data: { ...report[0], scores } });
   } catch (error: any) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
@@ -266,7 +328,7 @@ inspectionsRoutes.get('/battery/:id', async (c) => {
     `;
     return c.json({ data: report[0] });
   } catch (error: any) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    return c.json({ error: error.message || 'Internal Server Error' }, 500);
   }
 });
 
