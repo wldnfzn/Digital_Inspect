@@ -71,6 +71,17 @@ app.get('/env-test', (c) => {
   return c.json({ helpers: process.env.NODEJS_HELPERS });
 });
 
+app.get('/run-migration', async (c) => {
+  try {
+    const { default: sql } = await import('./lib/db');
+    await sql`ALTER TABLE forklift_inspections ADD COLUMN IF NOT EXISTS additional_data JSONB;`;
+    await sql`ALTER TABLE battery_service_reports ADD COLUMN IF NOT EXISTS full_report_data JSONB;`;
+    return c.json({ status: 'ok', message: 'Migration applied!' });
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
+  }
+});
+
 app.post('/post-test', async (c) => {
   try {
     const body = await c.req.json();
