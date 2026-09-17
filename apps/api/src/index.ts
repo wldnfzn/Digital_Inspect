@@ -82,6 +82,34 @@ app.get('/run-migration', async (c) => {
   }
 });
 
+app.get('/fix-health', async (c) => {
+  try {
+    const { default: sql } = await import('./lib/db');
+    const forklifts = await sql`SELECT id FROM forklifts`;
+    for (let f of forklifts) {
+      const latest = await sql`SELECT health_percentage, health_status FROM forklift_inspections WHERE forklift_id = ${f.id} ORDER BY completed_at DESC LIMIT 1`;
+      if (latest.length > 0) {
+        await sql`UPDATE forklifts SET health_score = ${latest[0].health_percentage}, health_status = ${latest[0].health_status} WHERE id = ${f.id}`;
+      } else {
+        await sql`UPDATE forklifts SET health_score = 0, health_status = 'HEALTHY' WHERE id = ${f.id}`;
+      }
+    }
+    
+    const batteries = await sql`SELECT id FROM batteries`;
+    for (let b of batteries) {
+      const latest = await sql`SELECT voltage_reading FROM battery_service_reports WHERE battery_id = ${b.id} ORDER BY completed_at DESC LIMIT 1`;
+      if (latest.length > 0) {
+        await sql`UPDATE batteries SET voltage = ${latest[0].voltage_reading} WHERE id = ${b.id}`;
+      } else {
+        await sql`UPDATE batteries SET voltage = NULL WHERE id = ${b.id}`;
+      }
+    }
+    return c.json({ status: 'ok', message: 'Health recalculation applied!' });
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
+  }
+});
+
 app.post('/post-test', async (c) => {
   try {
     const body = await c.req.json();
