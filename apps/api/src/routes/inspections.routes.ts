@@ -182,7 +182,7 @@ inspectionsRoutes.post('/forklift', async (c) => {
     // We should ideally fetch real item criticality from DB, but for simplicity assuming payload is honest 
     // or we can query it here:
     const itemIds = items.map((i: any) => i.item_id);
-    const dbItems = await sql`SELECT id, is_critical FROM inspection_items WHERE id IN ${sql(itemIds)}`;
+    const dbItems = await sql`SELECT id, is_critical FROM inspection_items WHERE id = ANY(${itemIds})`;
     const criticalMap = new Map(dbItems.map(i => [i.id, i.is_critical]));
 
     for (const item of items) {
