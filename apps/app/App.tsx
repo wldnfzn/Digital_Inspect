@@ -915,7 +915,8 @@ const InspectionFormScreen = ({ route, navigation }: any) => {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],
         allowsEditing: false,
-        quality: 0.5,
+        quality: 0.3,
+        base64: true,
       });
 
       if (!result.canceled && result.assets.length > 0) {
@@ -923,7 +924,8 @@ const InspectionFormScreen = ({ route, navigation }: any) => {
           const newScores = [...prev];
           const idx = newScores.findIndex(s => s.item_id === currentItem.id);
           if (idx !== -1) {
-            newScores[idx].photo_url = result.assets[0].uri;
+            const asset = result.assets[0];
+            newScores[idx].photo_url = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
           }
           return newScores;
         });
