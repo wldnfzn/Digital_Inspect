@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import sql from '../lib/db';
 import { authMiddleware, roleGuard } from '../middleware/auth';
+import { logAudit } from '../lib/audit';
 
 const reportsRoutes = new Hono();
 
@@ -108,6 +109,8 @@ reportsRoutes.delete('/:type/:id', async (c) => {
     if (taskId) {
       await sql`DELETE FROM inspection_tasks WHERE id = ${taskId}`;
     }
+
+    await logAudit(user.userId, user.email, 'DELETE_REPORT', type, `Deleted ${type} report ${id}`);
 
     return c.json({ message: 'Report and associated task deleted successfully' });
   } catch (error: any) {

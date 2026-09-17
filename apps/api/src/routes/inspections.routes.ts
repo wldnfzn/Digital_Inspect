@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import sql from '../lib/db';
 import { authMiddleware, roleGuard } from '../middleware/auth';
 import { calculateHealthScore, determineHealthStatus } from '@digital-inspect/shared';
+import { logAudit } from '../lib/audit';
 
 const inspectionsRoutes = new Hono();
 inspectionsRoutes.use('*', authMiddleware);
@@ -80,6 +81,8 @@ inspectionsRoutes.post('/schedule', roleGuard(['SUPER_ADMIN', 'MANAGER']), async
       INSERT INTO notifications (user_id, title, message, related_entity_type, related_entity_id)
       VALUES (${assigned_to}, 'Tugas Baru', 'Anda mendapat tugas inspeksi baru untuk tanggal ' || ${scheduled_date}, 'INSPECTION_TASK', ${newTask[0].id})
     `;
+
+    await logAudit(user.userId, user.email, 'CREATE_TASK', 'Inspection Task', \`Scheduled task \${newTask[0].id} for \${asset_type}\`);
 
     return c.json({ message: 'Task scheduled', data: newTask[0] }, 201);
   } catch (error: any) {
@@ -237,6 +240,8 @@ inspectionsRoutes.post('/forklift', async (c) => {
       return inspectionId;
     });
 
+    await logAudit(user.userId, user.email, 'SUBMIT_INSPECTION', 'Forklift', \`Submitted forklift inspection \${result}\`);
+
     return c.json({ message: 'Inspection submitted', inspection_id: result }, 201);
   } catch (error: any) {
     console.error(error);
@@ -287,6 +292,8 @@ inspectionsRoutes.post('/battery', async (c) => {
 
       return report[0].id;
     });
+
+    await logAudit(user.userId, user.email, 'SUBMIT_SERVICE', 'Battery', \`Submitted battery service \${result}\`);
 
     return c.json({ message: 'Battery service submitted', report_id: result }, 201);
   } catch (error: any) {
