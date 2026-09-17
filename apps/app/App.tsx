@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, ActivityIndicator, Keyboard, Platform, Button } from 'react-native';
+import { View, Text as RNText, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput as RNTextInput, ActivityIndicator, Keyboard, Platform, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from './src/lib/api';
 import * as Location from 'expo-location';
@@ -20,6 +20,7 @@ const Stack = createNativeStackNavigator();
 // Colors from PRD
 const COLORS = {
   primary: '#1E40AF',
+  secondary: '#3B82F6',
   healthy: '#16A34A',
   attention: '#F59E0B',
   critical: '#DC2626',
@@ -29,6 +30,9 @@ const COLORS = {
   textPrimary: '#0F172A',
   textMuted: '#64748B'
 };
+
+const Text = (props: any) => <RNText {...props} style={[{color: COLORS.textPrimary}, props.style]} />;
+const TextInput = (props: any) => <RNTextInput placeholderTextColor={COLORS.textMuted} {...props} style={[{color: COLORS.textPrimary}, props.style]} />;
 
 // --- AUTH CONTEXT ---
 export const AuthContext = React.createContext<{user: any, login: any, logout: any}>({
@@ -1143,6 +1147,8 @@ const BatteryServiceFormScreen = ({ route, navigation }: any) => {
   const [voltage, setVoltage] = useState(asset?.voltage ? asset.voltage.toString() : '');
   const [customer, setCustomer] = useState(asset?.customer_id || '');
   const [condDuringServ, setCondDuringServ] = useState('');
+  const [contactPerson, setContactPerson] = useState('');
+  const [complaint, setComplaint] = useState('');
   
   // 40 cells state: { sg: string, v: string }
   const [cells, setCells] = useState(Array(40).fill({ sg: '', v: '' }));
