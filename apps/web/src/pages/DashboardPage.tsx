@@ -16,7 +16,7 @@ const KPICard = ({ title, value, icon, bgClass, textClass }: { title: string, va
   </div>
 );
 
-const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) => {
+const NewDashboard = ({ stats, openDetail, setPreviewImage }: { stats: any, openDetail: any, setPreviewImage: any }) => {
   const totalInspections = (stats?.health_status?.good || 0) + (stats?.health_status?.attention || 0) + (stats?.health_status?.critical || 0);
   const goodPct = totalInspections ? Math.round((stats.health_status.good / totalInspections) * 100) : 0;
   const attPct = totalInspections ? Math.round((stats.health_status.attention / totalInspections) * 100) : 0;
@@ -293,7 +293,7 @@ export const DashboardPage = () => {
   const openDetail = async (id: string, type: string) => {
     try {
       setLoadingDetail(true);
-      const url = type === 'FORKLIFT' ? `/reports/forklift/${id}` : `/reports/battery/${id}`;
+      const url = type === 'FORKLIFT' ? `/inspections/forklift/${id}` : `/inspections/battery/${id}`;
       const res = await api.get(url);
       setSelectedReport(res.data.data);
       setSelectedReportType(type);
@@ -352,7 +352,7 @@ export const DashboardPage = () => {
       </div>
 
       {stats ? (
-        <NewDashboard stats={stats} openDetail={openDetail} />
+        <NewDashboard stats={stats} openDetail={openDetail} setPreviewImage={setPreviewImage} />
       ) : (
         <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm border border-gray-100">
            <div className="flex flex-col items-center gap-3">
