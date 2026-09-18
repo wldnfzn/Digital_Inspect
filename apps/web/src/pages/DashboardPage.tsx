@@ -209,9 +209,9 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                           Lihat Detail
                         </Button>
                         {alert.photo_url && (
-                          <a href={alert.photo_url} target="_blank" rel="noreferrer" className="flex-1 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 py-2 rounded-lg text-xs font-bold transition-colors print:hidden flex justify-center items-center gap-1">
+                          <button onClick={() => setPreviewImage(alert.photo_url)} className="flex-1 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 py-2 rounded-lg text-xs font-bold transition-colors print:hidden flex justify-center items-center gap-1">
                             <span className="material-symbols-outlined text-[16px]">image</span> Foto
-                          </a>
+                          </button>
                         )}
                     </div>
                   </li>
@@ -268,6 +268,7 @@ export const DashboardPage = () => {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -413,7 +414,21 @@ export const DashboardPage = () => {
       <Modal.Footer>
         <Button variant="secondary" onClick={() => setSelectedReport(null)}>Tutup</Button>
       </Modal.Footer>
-    </Modal>
+      </Modal>
+
+      <Modal open={!!previewImage} onClose={() => setPreviewImage(null)} maxWidth="max-w-3xl">
+        <Modal.Header onClose={() => setPreviewImage(null)}>Pratinjau Foto</Modal.Header>
+        <Modal.Body>
+          {previewImage && (
+            <div className="flex justify-center items-center bg-gray-50 rounded-xl p-2">
+              <img src={previewImage} alt="Preview" className="max-w-full max-h-[70vh] rounded-lg object-contain" />
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setPreviewImage(null)}>Tutup</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
