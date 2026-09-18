@@ -22,6 +22,11 @@
     @apply print:hidden;
   }
   
+  .print-color-exact {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -56,6 +61,11 @@
   animation: slideUp 0.3s ease-out forwards;
 }
 
+/* Font feature settings (moved from index.html inline style) */
+body {
+  font-feature-settings: 'cv11', 'ss01';
+}
+
 @media print {
   body:has(#printable-report) * {
     visibility: hidden;
@@ -68,15 +78,14 @@
     left: 0;
     top: 0;
     width: 210mm;
-    height: 296mm;
     padding: 1cm 1.5cm 1.5cm 1.5cm;
     box-sizing: border-box;
     margin: 0;
-    overflow: hidden;
+    /* Removed overflow:hidden and height:296mm to allow multi-page reports */
   }
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 8mm;
   }
 
   /* Reset all scrolling and fixed elements in the ancestors of printable-report */
@@ -106,3 +115,4 @@
     display: none !important;
   }
 }
+

@@ -17,8 +17,7 @@ export const BatteryPrintLayout = ({ report }: { report: any }) => {
 
   const renderBox = (label: string, isChecked: boolean) => (
     <div 
-      className={`border border-black px-2 py-0.5 font-bold ${isChecked ? 'bg-black text-white' : 'text-black'}`}
-      style={{ WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact' as any }}
+      className={`border border-black px-2 py-0.5 font-bold print-color-exact ${isChecked ? 'bg-black text-white' : 'text-black'}`}
     >
       {label}
     </div>

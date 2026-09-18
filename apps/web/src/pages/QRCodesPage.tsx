@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { api } from '../lib/api';
+import { Button, Input, Select } from '../components/ui';
 
 export const QRCodesPage = () => {
   const [assets, setAssets] = useState<any[]>([]);
@@ -35,14 +36,23 @@ export const QRCodesPage = () => {
 
   const handlePrintAll = () => {
     setPrintTargetId(null);
-    setTimeout(() => window.print(), 50);
+    setTimeout(() => {
+      try {
+        window.print();
+      } finally {
+        setPrintTargetId(null);
+      }
+    }, 50);
   };
 
   const handlePrintSingle = (id: string) => {
     setPrintTargetId(id);
     setTimeout(() => {
-      window.print();
-      setPrintTargetId(null); // Reset after print dialog opens/closes
+      try {
+        window.print();
+      } finally {
+        setPrintTargetId(null);
+      }
     }, 100);
   };
 
@@ -60,35 +70,28 @@ export const QRCodesPage = () => {
             <p className="text-base text-gray-500 mt-1">Generate and print QR codes for assets</p>
           </div>
           <div className="flex gap-2">
-            <button 
-              onClick={handlePrintAll}
-              className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[18px]">print</span>
+            <Button variant="primary" icon="print" onClick={handlePrintAll}>
               Print All (Visible)
-            </button>
+            </Button>
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mt-6 mb-6 flex flex-col sm:flex-row gap-4 items-center">
           <span className="text-sm font-medium text-gray-700">Filter:</span>
-          <select 
+          <Select 
             value={filter} 
-            onChange={e => setFilter(e.target.value)} 
-            className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary w-full sm:w-auto outline-none"
+            onChange={e => setFilter(e.target.value)}
           >
             <option value="ALL">All Assets</option>
             <option value="FORKLIFT">Forklift</option>
             <option value="BATTERY">Battery</option>
-          </select>
-          <div className="relative w-full sm:w-64 ml-auto">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
-            <input 
+          </Select>
+          <div className="w-full sm:w-64 ml-auto">
+            <Input 
+              icon="search"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" 
               placeholder="Search code/model..." 
-              type="text"
             />
           </div>
         </div>
@@ -121,19 +124,20 @@ export const QRCodesPage = () => {
                     includeMargin={false}
                   />
                 </div>
-                <div className="text-center w-full">
-                  <p className={`font-asset-id text-gray-900 font-bold text-base print:text-black ${isTarget ? 'print:text-5xl print:mt-6' : 'print:text-lg'}`}>{asset.asset_code}</p>
-                  <p className={`text-primary font-semibold text-xs print:text-gray-800 ${isTarget ? 'print:text-3xl print:mt-2' : ''}`}>{asset.type}</p>
-                  <p className={`text-gray-500 text-xs mt-1 print:text-gray-600 ${isTarget ? 'print:text-2xl print:mt-2' : ''}`}>{asset.model || asset.brand || '-'}</p>
+                <div className="text-center w-full min-w-0">
+                  <p className={`font-asset-id text-gray-900 font-bold text-base truncate print:text-black ${isTarget ? 'print:text-5xl print:mt-6' : 'print:text-lg'}`}>{asset.asset_code}</p>
+                  <p className={`text-primary font-semibold text-xs truncate print:text-gray-800 ${isTarget ? 'print:text-3xl print:mt-2' : ''}`}>{asset.type}</p>
+                  <p className={`text-gray-500 text-xs mt-1 truncate print:text-gray-600 ${isTarget ? 'print:text-2xl print:mt-2' : ''}`}>{asset.model || asset.brand || '-'}</p>
                 </div>
-                <button 
-                  onClick={() => handlePrintSingle(asset.id)}
-                  className="w-full mt-auto bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-lg py-2 flex items-center justify-center gap-2 text-sm font-medium transition-colors print:hidden cursor-pointer"
-                  title="Print this QR Code only"
-                >
-                  <span className="material-symbols-outlined text-[18px]">print</span>
-                  Print
-                </button>
+                <div className="w-full mt-auto print:hidden" title="Print this QR Code only">
+                  <Button 
+                    variant="outline"
+                    icon="print"
+                    onClick={() => handlePrintSingle(asset.id)}
+                  >
+                    Print
+                  </Button>
+                </div>
               </div>
             );
           })}

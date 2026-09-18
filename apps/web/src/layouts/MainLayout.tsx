@@ -193,7 +193,14 @@ export const MainLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   if (!user) {
-    return <div className="p-8 text-center bg-gray-50 min-h-screen">Loading application...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-sm font-medium text-gray-500">Memuat aplikasi...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -205,7 +212,7 @@ export const MainLayout = () => {
         <div className="print:hidden">
           <TopNavBar onMenuClick={() => setIsMobileMenuOpen(true)} />
         </div>
-        <main className="flex-1 p-4 sm:p-8 mt-16 max-w-7xl mx-auto w-full flex flex-col gap-6 print:mt-0 print:p-0">
+        <main className="flex-1 p-4 sm:p-8 mt-16 max-w-[1440px] mx-auto w-full flex flex-col gap-6 print:mt-0 print:p-0">
           <Outlet />
         </main>
         <div className="print:hidden">

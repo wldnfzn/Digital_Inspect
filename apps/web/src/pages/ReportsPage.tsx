@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button, Badge, Input, Select, useToast, ConfirmDialog } from '../components/ui';
 import { useAuth } from '../AuthContext';
 import { UserRole } from '../types';
 import { api } from '../lib/api';
@@ -6,6 +7,8 @@ import { BatteryPrintLayout } from '../components/BatteryPrintLayout';
 
 export const ReportsPage = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [confirmDelete, setConfirmDelete] = useState<{id: string, type: string} | null>(null);
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -34,14 +37,20 @@ export const ReportsPage = () => {
   const [selectedReportType, setSelectedReportType] = useState('');
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const handleDelete = async (id: string, type: string) => {
-    if (!confirm('Hapus laporan ini? Data yang sudah dihapus tidak dapat dikembalikan.')) return;
+  const handleDelete = (id: string, type: string) => {
+    setConfirmDelete({ id, type });
+  };
+  
+  const confirmDeleteReport = async () => {
+    if (!confirmDelete) return;
     try {
-      await api.delete(`/reports/${type}/${id}`);
-      alert('Laporan berhasil dihapus');
-      setReports(reports.filter(r => r.id !== id));
+      await api.delete(`/reports/${confirmDelete.type}/${confirmDelete.id}`);
+      toast('Laporan berhasil dihapus', 'success');
+      setReports(reports.filter(r => r.id !== confirmDelete.id));
     } catch (e: any) {
-      alert('Gagal: ' + (e.response?.data?.error || e.message));
+      toast('Gagal: ' + (e.response?.data?.error || e.message), 'error');
+    } finally {
+      setConfirmDelete(null);
     }
   };
 
@@ -61,18 +70,12 @@ export const ReportsPage = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="font-headline-xl text-headline-xl text-on-background">Inspection Reports</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-xs">View completed inspection and service reports</p>
         </div>
-        <button 
-          onClick={() => alert('Export to Excel feature coming soon!')}
-          className="bg-primary text-on-primary px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>download</span>
-          Export to Excel
-        </button>
+        <Button variant="primary" icon="download" onClick={() => toast('Export to Excel coming soon', 'info')}>Export to Excel</Button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col mt-6">
@@ -105,13 +108,13 @@ export const ReportsPage = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
-                <th className="p-sm pl-md font-label-sm text-label-sm font-semibold">Completed Date</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Asset Type</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Asset Code</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Customer</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Mechanic</th>
-                <th className="p-sm font-label-sm text-label-sm font-semibold">Score / Result</th>
-                <th className="p-sm pr-md font-label-sm text-label-sm font-semibold">Actions</th>
+                <th className="p-2 pl-md font-label-sm text-label-sm font-semibold">Completed Date</th>
+                <th className="p-2 font-label-sm text-label-sm font-semibold">Asset Type</th>
+                <th className="p-2 font-label-sm text-label-sm font-semibold">Asset Code</th>
+                <th className="p-2 font-label-sm text-label-sm font-semibold">Customer</th>
+                <th className="p-2 font-label-sm text-label-sm font-semibold">Mechanic</th>
+                <th className="p-2 font-label-sm text-label-sm font-semibold">Score / Result</th>
+                <th className="p-2 pr-md font-label-sm text-label-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="font-body-md text-body-md text-on-background">
@@ -122,55 +125,32 @@ export const ReportsPage = () => {
               ) : (
                 filteredReports.map(r => (
                   <tr key={r.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
-                    <td className="p-sm pl-md">{new Date(r.date).toLocaleString()}</td>
-                    <td className="p-sm text-on-surface-variant">
+                    <td className="p-2 pl-md">{new Date(r.date).toLocaleString()}</td>
+                    <td className="p-2 text-on-surface-variant">
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                        <span className="material-symbols-outlined text-base">
                           {r.asset_type === 'FORKLIFT' ? 'forklift' : 'battery_charging_full'}
                         </span>
                         {r.asset_type}
                       </span>
                     </td>
-                    <td className="p-sm font-medium text-primary">{r.asset_code}</td>
-                    <td className="p-sm text-on-surface-variant">{r.customer || '-'}</td>
-                    <td className="p-sm">{r.mechanic || '-'}</td>
-                    <td className="p-sm">
+                    <td className="p-2 font-medium text-primary">{r.asset_code}</td>
+                    <td className="p-2 text-on-surface-variant">{r.customer || '-'}</td>
+                    <td className="p-2">{r.mechanic || '-'}</td>
+                    <td className="p-2">
                       {r.asset_type === 'FORKLIFT' ? (
-                        <span className={`inline-flex items-center gap-xs px-2 py-0.5 rounded-full font-label-sm text-label-sm border ${
-                          r.status === 'CRITICAL' ? 'bg-error-container text-on-error-container border-error/20' :
-                          r.status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container border-warning/20' :
-                          'bg-success-container text-on-success-container border-success/20'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            r.status === 'CRITICAL' ? 'bg-error' :
-                            r.status === 'ATTENTION' ? 'bg-warning' :
-                            'bg-success'
-                          }`}></span> {r.score}%
-                        </span>
+                        <Badge variant={r.status === 'CRITICAL' ? 'critical' : r.status === 'ATTENTION' ? 'attention' : 'healthy'} dot>
+                          {r.score}%
+                        </Badge>
                       ) : (
-                        <span className={`inline-flex items-center gap-xs px-2 py-0.5 rounded-full font-label-sm text-label-sm border ${
-                          r.status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container border-warning/20' :
-                          'bg-success-container text-on-success-container border-success/20'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            r.status === 'ATTENTION' ? 'bg-warning' : 'bg-success'
-                          }`}></span> {r.score}V
-                        </span>
+                        <Badge variant={r.status === 'ATTENTION' ? 'attention' : 'healthy'} dot>
+                          {r.score}V
+                        </Badge>
                       )}
                     </td>
-                    <td className="p-sm pr-md flex gap-2">
-                      <button 
-                        className="text-primary hover:underline text-sm font-medium cursor-pointer"
-                        onClick={() => openDetail(r.id, r.asset_type)}
-                      >
-                        View Detail
-                      </button>
-                      <button 
-                        className="text-error hover:underline text-sm font-medium cursor-pointer text-[#dc2626]"
-                        onClick={() => handleDelete(r.id, r.asset_type)}
-                      >
-                        Delete
-                      </button>
+                    <td className="p-2 pr-md flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => openDetail(r.id, r.asset_type)}>View Detail</Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id, r.asset_type)}>Delete</Button>
                     </td>
                   </tr>
                 ))
@@ -182,7 +162,10 @@ export const ReportsPage = () => {
 
       {loadingDetail && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg">Loading details...</div>
+          <div className="bg-white p-6 rounded-lg flex flex-col items-center gap-4">
+            <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+            <span className="font-medium">Loading details...</span>
+          </div>
         </div>
       )}
 
@@ -197,10 +180,8 @@ export const ReportsPage = () => {
                 </span>
               </h3>
               <div className="flex gap-2 items-center">
-                <button onClick={() => window.print()} className="no-print bg-primary hover:bg-primary-fixed-variant text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 cursor-pointer transition-colors">
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>print</span> Print PDF
-                </button>
-                <button onClick={() => setSelectedReport(null)} className="no-print material-symbols-outlined cursor-pointer text-gray-500 hover:text-gray-800 ml-2 transition-colors">close</button>
+                <Button variant="primary" onClick={() => window.print()} className="no-print" icon="print">Print PDF</Button>
+                <Button variant="ghost" className="no-print" icon="close" onClick={() => setSelectedReport(null)} />
               </div>
             </div>
             
@@ -252,7 +233,7 @@ export const ReportsPage = () => {
                         {selectedReport.scores.map((s: any, idx: number) => (
                           <tr key={idx}>
                             <td className="border border-gray-300 p-2 text-sm">{s.category_name}</td>
-                            <td className="border border-gray-300 p-2 text-sm">{s.item_name} {s.photo_url && <a href={s.photo_url} target="_blank" rel="noreferrer" className="text-blue-500 underline ml-2 no-print">(Bukti Foto)</a>}</td>
+                            <td className="border border-gray-300 p-2 text-sm">{s.item_name} {s.photo_url && <a href={s.photo_url} target="_blank" rel="noreferrer text-blue-500 underline ml-2 no-print">(Bukti Foto)</a>}</td>
                             <td className={`border border-gray-300 p-2 text-center font-bold ${s.score === 3 ? 'text-success' : s.score === 2 ? 'text-warning' : 'text-error'}`}>{s.score}</td>
                           </tr>
                         ))}
@@ -364,7 +345,7 @@ export const ReportsPage = () => {
                 {/* Header */}
                 <div className="flex border-b-2 border-black pb-2 mb-2 items-center">
                   <div className="w-1/4">
-                    <div className="w-16 h-16 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold text-4xl">M</div>
+                    <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-4xl">M</div>
                   </div>
                   <div className="w-3/4 text-center">
                     <h1 className="text-xl font-bold text-black uppercase tracking-wider mb-1">PT UNITED MULTILIFT PERKASA</h1>
@@ -550,11 +531,21 @@ export const ReportsPage = () => {
               )}
             </div>
             <div className="p-4 border-t border-outline-variant flex justify-end bg-surface-container-lowest">
-              <button onClick={() => setSelectedReport(null)} className="px-4 py-2 border rounded font-medium hover:bg-surface-container-low">Close</button>
+              <Button variant="secondary" onClick={() => setSelectedReport(null)}>Close</Button>
             </div>
           </div>
         </div>
       )}
+    
+      <ConfirmDialog 
+        open={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={confirmDeleteReport}
+        title="Hapus Laporan"
+        message="Hapus laporan ini? Data yang sudah dihapus tidak dapat dikembalikan."
+        confirmText="Hapus"
+        variant="danger"
+      />
     </>
   );
 };

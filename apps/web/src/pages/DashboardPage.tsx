@@ -2,14 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { api } from '../lib/api';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts';
-
-const COLORS = {
-  healthy: '#16a34a',
-  attention: '#f59e0b',
-  critical: '#dc2626',
-  primary: '#2563eb',
-  secondary: '#3b82f6',
-};
+import { Button, Badge, useToast, Modal } from '../components/ui';
 
 const KPICard = ({ title, value, icon, bgClass, textClass }: { title: string, value: string | number, icon: string, bgClass: string, textClass: string }) => (
   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-4 hover:shadow-md transition-all group">
@@ -30,18 +23,18 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
   const critPct = totalInspections ? Math.round((stats.health_status.critical / totalInspections) * 100) : 0;
 
   const pieData = [
-    { name: 'Bagus', value: goodPct, color: COLORS.healthy },
-    { name: 'Perhatian', value: attPct, color: COLORS.attention },
-    { name: 'Kritis', value: critPct, color: COLORS.critical },
+    { name: 'Bagus', value: goodPct, color: '#16a34a' },
+    { name: 'Perhatian', value: attPct, color: '#f59e0b' },
+    { name: 'Kritis', value: critPct, color: '#dc2626' },
   ].filter(d => d.value > 0);
 
   return (
     <div className="flex flex-col gap-6" id="dashboard-content">
       
       {/* Top Row: KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-        <KPICard title="Total Forklift" value={stats?.total_forklifts || 0} icon="forklift" bgClass="bg-blue-50" textClass="text-primary" />
-        <KPICard title="Total Baterai" value={stats?.total_batteries || 0} icon="battery_charging_full" bgClass="bg-blue-50" textClass="text-primary" />
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+        <KPICard title="Total Forklift" value={stats?.total_forklifts || 0} icon="forklift" bgClass="bg-blue-50" textClass="text-blue-600" />
+        <KPICard title="Total Baterai" value={stats?.total_batteries || 0} icon="battery_charging_full" bgClass="bg-blue-50" textClass="text-blue-600" />
         <KPICard title="Total Karyawan" value={stats?.total_employees || 0} icon="badge" bgClass="bg-gray-50" textClass="text-gray-600" />
         <KPICard title="Inspeksi Selesai" value={stats?.completed_this_month || 0} icon="task_alt" bgClass="bg-green-50" textClass="text-success" />
         <KPICard title="Inspeksi Berjalan" value={stats?.ongoing_tasks || 0} icon="pending_actions" bgClass="bg-amber-50" textClass="text-warning" />
@@ -66,12 +59,12 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                 <AreaChart margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorPrimary" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorWarning" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.attention} stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor={COLORS.attention} stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -79,8 +72,8 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} />
                   <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '20px' }} />
-                  <Area data={stats?.activity_inspections || []} type="monotone" dataKey="count" name="Selesai" stroke={COLORS.primary} strokeWidth={3} fillOpacity={1} fill="url(#colorPrimary)" isAnimationActive={false} />
-                  <Area data={stats?.active_tasks_trend || []} type="monotone" dataKey="count" name="Berjalan" stroke={COLORS.attention} strokeWidth={3} fillOpacity={1} fill="url(#colorWarning)" isAnimationActive={false} />
+                  <Area data={stats?.activity_inspections || []} type="monotone" dataKey="count" name="Selesai" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorPrimary)" isAnimationActive={false} />
+                  <Area data={stats?.active_tasks_trend || []} type="monotone" dataKey="count" name="Berjalan" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorWarning)" isAnimationActive={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -93,7 +86,7 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                 <h3 className="text-lg font-bold text-gray-900">Trend Kesehatan Aset</h3>
                 <p className="text-sm text-gray-500">Rata-rata skor inspeksi harian</p>
               </div>
-              <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-lg font-bold text-sm flex items-center gap-2">
+              <span className="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-lg font-bold text-sm flex items-center gap-2">
                 <span className="material-symbols-outlined text-[16px]">trending_up</span>
                 Avg: {stats?.avg_fleet_health || 0}%
               </span>
@@ -104,8 +97,8 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                   <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} />
-                  <Tooltip formatter={(val) => `${val}%`} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Line type="monotone" dataKey="avg_score" name="Avg Health %" stroke={COLORS.secondary} strokeWidth={3} dot={{ r: 4, fill: COLORS.secondary, strokeWidth: 2 }} activeDot={{ r: 6 }} isAnimationActive={false} />
+                  <Tooltip formatter={(val: any) => `${val}%`} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Line type="monotone" dataKey="avg_score" name="Avg Health %" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2 }} activeDot={{ r: 6 }} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -118,34 +111,30 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
             </div>
             <div className="overflow-x-auto overflow-y-auto max-h-[400px] custom-scrollbar">
               <table className="w-full text-left divide-y divide-gray-100">
-                <thead className="bg-gray-50/50 sticky top-0 z-10">
+                <thead className="bg-gray-50/80 sticky top-0 z-10">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Aset</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipe</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Skor</th>
+                    <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Aset</th>
+                    <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipe</th>
+                    <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                    <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Skor</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {stats?.recent_inspections?.length > 0 ? stats.recent_inspections.map((r: any, idx: number) => (
-                    <tr key={idx} onClick={() => openDetail(r.id, r.asset_type)} className="hover:bg-blue-50/30 transition-colors cursor-pointer group">
-                      <td className="px-6 py-4 text-sm font-bold text-gray-900">{r.asset_code}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                    <tr key={idx} onClick={() => openDetail(r.id, r.asset_type)} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 cursor-pointer group">
+                      <td className="px-5 py-3.5 text-sm font-bold text-gray-900">{r.asset_code}</td>
+                      <td className="px-5 py-3.5 text-sm text-gray-500">
                         <span className="flex items-center gap-1.5">
                           <span className="material-symbols-outlined text-[16px] text-gray-400">{r.asset_type === 'FORKLIFT' ? 'forklift' : 'battery_charging_full'}</span>
                           {r.asset_type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{new Date(r.date).toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5 text-sm text-gray-500">{new Date(r.date).toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</td>
+                      <td className="px-5 py-3.5 text-sm">
                         {r.asset_type === 'FORKLIFT' ? (
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                            r.status === 'CRITICAL' ? 'bg-error-container text-on-error-container' :
-                            r.status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container' :
-                            'bg-success-container text-on-success-container'
-                          }`}>
+                          <Badge variant={r.status === 'CRITICAL' ? 'critical' : r.status === 'ATTENTION' ? 'attention' : 'healthy'}>
                             {r.score}%
-                          </span>
+                          </Badge>
                         ) : (
                           <span className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-full">{r.score ? `${r.score}V` : '-'}</span>
                         )}
@@ -178,7 +167,7 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => `${value}%`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', color: '#0f172a' }} />
+                  <Tooltip formatter={(value: any) => `${value}%`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', color: '#0f172a' }} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
@@ -216,9 +205,9 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                       </div>
                     </div>
                     <div className="flex gap-2 mt-1">
-                        <button onClick={() => openDetail(alert.report_id, 'FORKLIFT')} className="flex-1 bg-error/10 text-on-error-container hover:bg-error/20 py-2 rounded-lg text-xs font-bold transition-colors print:hidden flex justify-center items-center gap-1">
+                        <Button variant="destructive" size="sm" onClick={() => openDetail(alert.report_id, 'FORKLIFT')}>
                           Lihat Detail
-                        </button>
+                        </Button>
                         {alert.photo_url && (
                           <a href={alert.photo_url} target="_blank" rel="noreferrer" className="flex-1 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 py-2 rounded-lg text-xs font-bold transition-colors print:hidden flex justify-center items-center gap-1">
                             <span className="material-symbols-outlined text-[16px]">image</span> Foto
@@ -239,7 +228,7 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
           {/* Mechanic Leaderboard */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col flex-1">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">engineering</span>
+              <span className="material-symbols-outlined text-blue-600">engineering</span>
               Top Mekanik
             </h3>
             <div className="overflow-y-auto flex-1 pr-2 custom-scrollbar max-h-[300px]">
@@ -247,7 +236,7 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
                 {stats?.mechanic_inspections?.length > 0 ? stats.mechanic_inspections.map((m: any, i: number) => (
                   <li key={i} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl transition-colors border border-gray-100 group">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-50 text-primary border border-blue-100 flex items-center justify-center font-bold text-sm group-hover:bg-primary group-hover:text-white transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center font-bold text-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
                         {m.name.charAt(0)}
                       </div>
                       <span className="font-semibold text-sm text-gray-900">{m.name}</span>
@@ -269,12 +258,15 @@ const NewDashboard = ({ stats, openDetail }: { stats: any, openDetail: any }) =>
 
 export const DashboardPage = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [stats, setStats] = useState<any>(null);
   
   const [month, setMonth] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   useEffect(() => {
@@ -298,8 +290,18 @@ export const DashboardPage = () => {
   }, [month, startDate, endDate]);
 
   const openDetail = async (id: string, type: string) => {
-    // We would use an actual modal here for detail view. Assuming existing functionality.
-    alert("Detail view for " + type + " " + id);
+    try {
+      setLoadingDetail(true);
+      const url = type === 'FORKLIFT' ? `/reports/forklift/${id}` : `/reports/battery/${id}`;
+      const res = await api.get(url);
+      setSelectedReport(res.data.data);
+      setSelectedReportType(type);
+    } catch (err) {
+      console.error(err);
+      toast('Gagal memuat detail laporan', 'error');
+    } finally {
+      setLoadingDetail(false);
+    }
   };
 
   const handlePrint = () => {
@@ -308,7 +310,7 @@ export const DashboardPage = () => {
   
   return (
     <>
-    <div className="pb-16 max-w-[1400px] w-full mx-auto">
+    <div className="pb-16 w-full mx-auto">
       {/* Header & Filters */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 print:hidden">
         <div>
@@ -323,7 +325,7 @@ export const DashboardPage = () => {
               type="month" 
               value={month} 
               onChange={e => { setMonth(e.target.value); setStartDate(''); setEndDate(''); }} 
-              className="text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary/20 focus:border-primary px-3 py-1.5 cursor-pointer outline-none transition-all"
+              className="text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 px-3 py-1.5 cursor-pointer outline-none transition-all"
             />
           </div>
           <div className="flex items-center gap-3 px-3">
@@ -332,22 +334,19 @@ export const DashboardPage = () => {
               type="date" 
               value={startDate} 
               onChange={e => { setStartDate(e.target.value); setMonth(''); }} 
-              className="text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary/20 focus:border-primary px-3 py-1.5 cursor-pointer outline-none transition-all"
+              className="text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 px-3 py-1.5 cursor-pointer outline-none transition-all"
             />
             <span className="text-gray-400 text-sm">sd</span>
             <input 
               type="date" 
               value={endDate} 
               onChange={e => { setEndDate(e.target.value); setMonth(''); }} 
-              className="text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary/20 focus:border-primary px-3 py-1.5 cursor-pointer outline-none transition-all"
+              className="text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 px-3 py-1.5 cursor-pointer outline-none transition-all"
             />
           </div>
-          <button 
-            onClick={handlePrint} 
-            className="ml-auto bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium shadow-sm hover:bg-primary-fixed-variant flex items-center gap-2 transition-all"
-          >
-            <span className="material-symbols-outlined text-[18px]">download</span> Export PDF
-          </button>
+          <div className="ml-auto">
+            <Button variant="primary" icon="download" onClick={handlePrint}>Export PDF</Button>
+          </div>
         </div>
       </div>
 
@@ -356,12 +355,65 @@ export const DashboardPage = () => {
       ) : (
         <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm border border-gray-100">
            <div className="flex flex-col items-center gap-3">
-             <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+             <div className="w-8 h-8 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
              <p className="text-gray-500 font-medium">Loading dashboard data...</p>
            </div>
         </div>
       )}
     </div>
+
+    <Modal open={!!selectedReport} onClose={() => setSelectedReport(null)} maxWidth="max-w-2xl">
+      <Modal.Header onClose={() => setSelectedReport(null)}>Detail Laporan {selectedReportType}</Modal.Header>
+      <Modal.Body>
+        {selectedReport ? (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase">Aset</p>
+                <p className="font-bold text-gray-900 mt-1">{selectedReport.asset_code}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase">Skor</p>
+                <p className="font-bold text-gray-900 mt-1">{selectedReport.score}%</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase">Status</p>
+                <div className="mt-1">
+                  <Badge variant={selectedReport.status === 'CRITICAL' ? 'critical' : selectedReport.status === 'ATTENTION' ? 'attention' : 'healthy'}>
+                    {selectedReport.status}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase">Catatan</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{selectedReport.notes || '-'}</p>
+              </div>
+            </div>
+            
+            <div className="bg-white border border-gray-100 rounded-xl p-4">
+              <p className="font-bold mb-2">Item Inspeksi</p>
+              <ul className="flex flex-col gap-2">
+                {selectedReport.items && selectedReport.items.map((item: any, idx: number) => (
+                  <li key={idx} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2">
+                    <span className="text-gray-700">{item.name}</span>
+                    <Badge variant={item.condition === 'GOOD' ? 'healthy' : item.condition === 'BAD' ? 'critical' : 'attention'}>
+                      {item.condition}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center p-8">
+            <div className="w-8 h-8 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setSelectedReport(null)}>Tutup</Button>
+      </Modal.Footer>
+    </Modal>
     </>
   );
 };

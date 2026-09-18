@@ -68,14 +68,9 @@ module.exports = {
         'modal': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
       },
       spacing: {
-        lg: "24px",
-        xl: "32px",
         "margin-desktop": "32px",
         gutter: "16px",
-        sm: "8px",
         "margin-mobile": "16px",
-        xs: "4px",
-        md: "16px",
         base: "4px"
       },
       fontFamily: {

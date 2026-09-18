@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { UserRole } from '../types';
 import { api } from '../lib/api';
+import { Button, Modal, Badge, Input, Select, useToast, ConfirmDialog } from '../components/ui';
 
 export const AssetsPage = () => {
   const [tab, setTab] = useState<'forklift' | 'battery'>('forklift');
@@ -18,8 +19,11 @@ export const AssetsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ asset_code: '', model: '', brand: '', voltage: '', customer_id: '' });
+  const [formData, setFormData] = useState({ asset_code: '', model: '', year: '', brand: '', type: '', voltage: '', customer_id: '' });
   const [isSaving, setIsSaving] = useState(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchItems = () => {
     setLoading(true);
@@ -60,13 +64,15 @@ export const AssetsPage = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(`Are you sure you want to delete this ${tab}?`)) return;
     try {
       const endpoint = tab === 'forklift' ? '/forklifts' : '/batteries';
       await api.delete(`${endpoint}/${id}`);
       fetchItems();
+      toast(`${tab} deleted successfully`, 'success');
     } catch (err: any) {
-      alert(err.response?.data?.error || `Failed to delete ${tab}`);
+      toast(err.response?.data?.error || `Failed to delete ${tab}`, 'error');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -97,8 +103,9 @@ export const AssetsPage = () => {
       }
       setIsModalOpen(false);
       fetchItems();
+      toast(`${tab} saved successfully`, 'success');
     } catch (err: any) {
-      alert(err.response?.data?.error || `Failed to save ${tab}`);
+      toast(err.response?.data?.error || `Failed to save ${tab}`, 'error');
     } finally {
       setIsSaving(false);
     }
@@ -119,90 +126,80 @@ export const AssetsPage = () => {
           <p className="text-base text-gray-500 mt-1">Manage Forklifts and Batteries</p>
         </div>
         {canEdit && (
-          <button onClick={openAddModal} className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all flex items-center gap-2 cursor-pointer">
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
+          <Button variant="primary" icon="add" onClick={openAddModal}>
             Add {tab === 'forklift' ? 'Forklift' : 'Battery'}
-          </button>
+          </Button>
         )}
       </div>
 
       <div className="flex border-b border-gray-200 gap-8 mt-6">
         <button 
-          className={`pb-3 text-sm transition-colors cursor-pointer ${tab === 'forklift' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-500 hover:text-gray-700 font-medium'}`}
+          className={`pb-3 text-sm transition-colors cursor-pointer flex items-center gap-2 text-lg ${tab === 'forklift' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-500 hover:text-gray-700 font-medium'}`}
           onClick={() => { setSearch(''); setTab('forklift'); }}
         >
-          <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>forklift</span>
-          Forklifts
+          <span className="material-symbols-outlined">forklift</span>
+          <span className="text-sm">Forklifts</span>
         </button>
         <button 
-          className={`pb-3 text-sm transition-colors cursor-pointer ${tab === 'battery' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-500 hover:text-gray-700 font-medium'}`}
+          className={`pb-3 text-sm transition-colors cursor-pointer flex items-center gap-2 text-lg ${tab === 'battery' ? 'border-b-2 border-primary text-primary font-semibold' : 'text-gray-500 hover:text-gray-700 font-medium'}`}
           onClick={() => { setSearch(''); setTab('battery'); }}
         >
-          <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>battery_charging_full</span>
-          Batteries
+          <span className="material-symbols-outlined">battery_charging_full</span>
+          <span className="text-sm">Batteries</span>
         </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
         <div className="bg-gray-50 border-b border-gray-200 p-4 flex flex-col sm:flex-row gap-4">
-          <div className="relative w-full sm:w-64">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
-            <input 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" 
-              placeholder={`Search ${tab}s...`} 
-              type="text"
-            />
-          </div>
+          <Input 
+            icon="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={`Search ${tab}s...`} 
+          />
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50/80 border-b border-gray-200">
-                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Asset Code</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{tab === 'forklift' ? 'Model' : 'Brand'}</th>
-                {tab === 'forklift' && <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Year</th>}
-                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Customer</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">{tab === 'forklift' ? 'Health Score' : 'Voltage'}</th>
-                <th className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">Actions</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Asset Code</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">{tab === 'forklift' ? 'Model' : 'Brand'}</th>
+                {tab === 'forklift' && <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Year</th>}
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">{tab === 'forklift' ? 'Health Score' : 'Voltage'}</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-700">
               {loading ? (
-                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="p-8 text-center text-gray-500">Loading {tab}s...</td></tr>
+                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="px-5 py-3.5 text-center text-gray-500">Loading {tab}s...</td></tr>
               ) : filteredItems.length === 0 ? (
-                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="p-8 text-center text-gray-500">No {tab}s found</td></tr>
+                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="px-5 py-3.5 text-center text-gray-500">No {tab}s found</td></tr>
               ) : filteredItems.map(item => (
                 <tr key={item.id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 group">
-                  <td className="px-4 py-3 font-medium text-primary">{item.asset_code}</td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-5 py-3.5 font-medium text-primary">{item.asset_code}</td>
+                  <td className="px-5 py-3.5 text-gray-600">
                     {tab === 'forklift' ? (item.model || '-') : (item.brand || '-')}
                   </td>
-                  {tab === 'forklift' && <td className="px-4 py-3 text-gray-600">{item.year || '-'}</td>}
-                  <td className="px-4 py-3 text-gray-600">{item.customer_name || '-'}</td>
-                  <td className="px-4 py-3">
+                  {tab === 'forklift' && <td className="px-5 py-3.5 text-gray-600">{item.year || '-'}</td>}
+                  <td className="px-5 py-3.5 text-gray-600">{item.customer_name || '-'}</td>
+                  <td className="px-5 py-3.5">
                     {tab === 'forklift' ? (
-                      <span className={`inline-flex ${
-                        item.health_status === 'CRITICAL' ? 'bg-error-container text-on-error-container border border-error/20 px-2.5 py-1 rounded-full text-xs font-medium items-center gap-1.5' :
-                        item.health_status === 'ATTENTION' ? 'bg-warning-container text-on-warning-container border border-warning/20 px-2.5 py-1 rounded-full text-xs font-medium items-center gap-1.5' :
-                        'bg-success-container text-on-success-container border border-success/20 px-2.5 py-1 rounded-full text-xs font-medium items-center gap-1.5'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          item.health_status === 'CRITICAL' ? 'bg-error' :
-                          item.health_status === 'ATTENTION' ? 'bg-warning' :
-                          'bg-success'
-                        }`}></span> {item.health_score || 100}%
-                      </span>
+                      <Badge 
+                        variant={item.health_status === 'CRITICAL' ? 'critical' : item.health_status === 'ATTENTION' ? 'attention' : 'healthy'}
+                        dot
+                      >
+                        {item.health_score || 100}%
+                      </Badge>
                     ) : (
                       <span className="text-gray-600 font-medium">{item.voltage ? `${item.voltage}V` : '-'}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-5 py-3.5 text-right">
                     {canEdit && (
-                      <div className="flex gap-3 justify-end">
-                        <button onClick={() => openEditModal(item)} className="text-primary hover:underline text-sm font-medium cursor-pointer">Edit</button>
-                        <button onClick={() => handleDelete(item.id)} className="text-error hover:underline text-sm font-medium cursor-pointer">Delete</button>
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="ghost" size="sm" onClick={() => openEditModal(item)}>Edit</Button>
+                        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(item.id)}>Delete</Button>
                       </div>
                     )}
                   </td>
@@ -213,107 +210,80 @@ export const AssetsPage = () => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slideUp overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 capitalize">
-                {modalMode === 'add' ? `Add New ${tab}` : `Edit ${tab}`}
-              </h3>
-            </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Asset Code *</label>
-                <input 
-                  required
-                  type="text" 
-                  value={formData.asset_code}
-                  onChange={e => setFormData({...formData, asset_code: e.target.value})}
-                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
-                  placeholder="e.g. FL-001"
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal.Header onClose={() => setIsModalOpen(false)}>
+          <span className="capitalize">{modalMode === 'add' ? `Add New ${tab}` : `Edit ${tab}`}</span>
+        </Modal.Header>
+        <Modal.Body>
+          <form id="asset-form" onSubmit={handleSave} className="space-y-4">
+            <Input 
+              label="Asset Code *"
+              required
+              value={formData.asset_code}
+              onChange={e => setFormData({...formData, asset_code: e.target.value})}
+              placeholder="e.g. FL-001"
+            />
+            {tab === 'forklift' ? (
+              <>
+                <Input 
+                  label="Model"
+                  value={formData.model}
+                  onChange={e => setFormData({...formData, model: e.target.value})}
+                  placeholder="e.g. Toyota 8FD"
                 />
-              </div>
+                <Input 
+                  label="Year"
+                  value={formData.year}
+                  onChange={e => setFormData({...formData, year: e.target.value})}
+                  placeholder="e.g. 2021"
+                />
+              </>
+            ) : (
+              <>
+                <Input 
+                  label="Brand"
+                  value={formData.brand}
+                  onChange={e => setFormData({...formData, brand: e.target.value})}
+                />
+                <Input 
+                  label="Voltage (V)"
+                  value={formData.voltage}
+                  onChange={e => setFormData({...formData, voltage: e.target.value})}
+                />
+              </>
+            )}
 
-              {tab === 'forklift' ? (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
-                    <input 
-                      type="text" 
-                      value={formData.model}
-                      onChange={e => setFormData({...formData, model: e.target.value})}
-                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
-                      placeholder="e.g. Toyota 8FD"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                    <input 
-                      type="text" 
-                      value={formData.year}
-                      onChange={e => setFormData({...formData, year: e.target.value})}
-                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
-                      placeholder="e.g. 2021"
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                    <input 
-                      type="text" 
-                      value={formData.brand}
-                      onChange={e => setFormData({...formData, brand: e.target.value})}
-                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Voltage (V)</label>
-                    <input 
-                      type="text" 
-                      value={formData.voltage}
-                      onChange={e => setFormData({...formData, voltage: e.target.value})}
-                      className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none" 
-                    />
-                  </div>
-                </>
-              )}
+            <Select
+              label="Assign to Customer"
+              value={formData.customer_id}
+              onChange={e => setFormData({...formData, customer_id: e.target.value})}
+            >
+              <option value="">-- No Customer --</option>
+              {customers.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </Select>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit" form="asset-form" loading={isSaving}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assign to Customer</label>
-                <select
-                  value={formData.customer_id}
-                  onChange={e => setFormData({...formData, customer_id: e.target.value})}
-                  className="h-11 bg-gray-50 border border-gray-200 rounded-lg px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary w-full outline-none"
-                >
-                  <option value="">-- No Customer --</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 -mx-6 -mb-6 mt-6">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-lg font-medium transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  disabled={isSaving}
-                  className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {isSaving ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog 
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        title={`Delete ${tab}`}
+        message={`Are you sure you want to delete this ${tab}?`}
+        confirmText="Delete"
+        variant="danger"
+      />
     </>
   );
 };

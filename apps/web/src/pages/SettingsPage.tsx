@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button, Modal, Badge, Input, useToast, ConfirmDialog } from '../components/ui';
 import { api } from '../lib/api';
 
 const DEFAULT_FORKLIFT_CATEGORIES = [
@@ -53,6 +54,9 @@ export const SettingsPage = () => {
   const [activeCategory, setActiveCategory] = useState(0);
   const [categories, setCategories] = useState(DEFAULT_FORKLIFT_CATEGORIES);
   const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+  const [promptModal, setPromptModal] = useState<{open: boolean, value: string, title: string, callback: (val: string) => void}>({open: false, value: '', title: '', callback: () => {}});
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
 
   // Load from API (optional but good practice)
   useEffect(() => {
@@ -62,28 +66,45 @@ export const SettingsPage = () => {
   const totalVariables = categories.reduce((sum, cat) => sum + cat.items.length, 0);
 
   const handleAddVariable = () => {
-    const itemName = window.prompt('Enter new variable name (e.g. "11. New Feature"):');
-    if (itemName && itemName.trim()) {
-      const newCats = [...categories];
-      newCats[activeCategory].items.push(itemName.trim());
-      setCategories(newCats);
-    }
+    setPromptModal({
+      open: true,
+      title: 'Enter new variable name (e.g. "11. New Feature"):',
+      value: '',
+      callback: (itemName) => {
+        if (itemName && itemName.trim()) {
+          const newCats = [...categories];
+          newCats[activeCategory].items.push(itemName.trim());
+          setCategories(newCats);
+        }
+      }
+    });
   };
 
   const handleEditVariable = (idx: number, currentName: string) => {
-    const itemName = window.prompt('Edit variable name:', currentName);
-    if (itemName && itemName.trim()) {
-      const newCats = [...categories];
-      newCats[activeCategory].items[idx] = itemName.trim();
-      setCategories(newCats);
-    }
+    setPromptModal({
+      open: true,
+      title: 'Edit variable name:',
+      value: currentName,
+      callback: (itemName) => {
+        if (itemName && itemName.trim()) {
+          const newCats = [...categories];
+          newCats[activeCategory].items[idx] = itemName.trim();
+          setCategories(newCats);
+        }
+      }
+    });
   };
 
   const handleDeleteVariable = (idx: number) => {
-    if (window.confirm('Are you sure you want to remove this variable?')) {
+    setConfirmDelete(idx);
+  };
+  
+  const confirmDeleteVariable = () => {
+    if (confirmDelete !== null) {
       const newCats = [...categories];
-      newCats[activeCategory].items.splice(idx, 1);
+      newCats[activeCategory].items.splice(confirmDelete, 1);
       setCategories(newCats);
+      setConfirmDelete(null);
     }
   };
 
@@ -91,7 +112,7 @@ export const SettingsPage = () => {
     setIsSaving(true);
     try {
       await api.post('/settings/templates/forklift/sync', { categories });
-      alert('Template saved successfully!');
+      toast('Template saved successfully!', 'success');
     } catch (error) {
       console.error(error);
       alert('Template saved locally (Backend sync failed, but UI updated).');
@@ -102,21 +123,14 @@ export const SettingsPage = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="font-headline-xl text-headline-xl text-on-background">System Settings</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-xs">Manage inspection templates and scoring rules</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mt-1">Manage inspection templates and scoring rules</p>
         </div>
-        <button 
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-primary hover:bg-primary-fixed-variant text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-            {isSaving ? 'sync' : 'save'}
-          </span>
+        <Button variant="primary" onClick={handleSave} loading={isSaving} icon={isSaving ? 'sync' : 'save'}>
           {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
+        </Button>
       </div>
 
       <div className="flex border-b border-gray-200 gap-8 mt-6">
@@ -124,33 +138,33 @@ export const SettingsPage = () => {
           className={`transition-colors flex items-center ${activeTab === 'forklift' ? 'border-b-2 border-primary text-primary font-semibold pb-3' : 'text-gray-500 hover:text-gray-700 pb-3 font-medium'}`}
           onClick={() => setActiveTab('forklift')}
         >
-          <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>forklift</span>
+          <span className="material-symbols-outlined align-middle mr-1 text-lg">forklift</span>
           Forklift Template
         </button>
         <button 
           className={`transition-colors flex items-center ${activeTab === 'battery' ? 'border-b-2 border-primary text-primary font-semibold pb-3' : 'text-gray-500 hover:text-gray-700 pb-3 font-medium'}`}
           onClick={() => setActiveTab('battery')}
         >
-          <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>battery_charging_full</span>
+          <span className="material-symbols-outlined align-middle mr-1 text-lg">battery_charging_full</span>
           Battery Template
         </button>
         <button 
           className={`transition-colors flex items-center ${activeTab === 'scoring' ? 'border-b-2 border-primary text-primary font-semibold pb-3' : 'text-gray-500 hover:text-gray-700 pb-3 font-medium'}`}
           onClick={() => setActiveTab('scoring')}
         >
-          <span className="material-symbols-outlined align-middle mr-1" style={{ fontSize: '18px' }}>rule</span>
+          <span className="material-symbols-outlined align-middle mr-1 text-lg">rule</span>
           Scoring Config
         </button>
       </div>
 
-      <div className="mt-md flex flex-col flex-1 h-full min-h-[500px]">
+      <div className="mt-4 flex flex-col flex-1 h-full min-h-[500px]">
         
         {/* FORKLIFT TAB */}
         {activeTab === 'forklift' && (
           <div className="bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col md:flex-row flex-1 overflow-hidden">
             {/* Categories Sidebar */}
             <div className="w-full md:w-64 border-r border-gray-200 bg-gray-50 flex flex-col">
-              <div className="p-sm border-b border-gray-200 flex justify-between items-center">
+              <div className="p-2 border-b border-gray-200 flex justify-between items-center">
                 <span className="font-label-sm font-semibold">Categories (Total: {totalVariables} Var)</span>
               </div>
               <ul className="flex-1 overflow-y-auto max-h-[600px]">
@@ -161,7 +175,7 @@ export const SettingsPage = () => {
                       className={`w-full text-left flex items-center justify-between cursor-pointer ${activeCategory === idx ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600 font-medium px-4 py-3' : 'text-gray-600 hover:bg-gray-100 border-l-4 border-transparent px-4 py-3 transition-colors'}`}
                     >
                       <span className="flex items-center gap-2">
-                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                        <span className="material-symbols-outlined text-base">
                           {activeCategory === idx ? 'folder_open' : 'folder'}
                         </span>
                         {cat.name}
@@ -175,22 +189,16 @@ export const SettingsPage = () => {
             
             {/* Items Area */}
             <div className="flex-1 flex flex-col bg-surface-container-lowest">
-              <div className="p-md border-b border-outline-variant flex justify-between items-center">
+              <div className="p-4 border-b border-outline-variant flex justify-between items-center">
                 <div>
                   <h3 className="font-headline-lg text-headline-lg text-primary">{categories[activeCategory].name}</h3>
                   <p className="text-sm text-on-surface-variant mt-1">Manage checklist items for this category</p>
                 </div>
-                <button 
-                  onClick={handleAddVariable}
-                  className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
-                  Add Variable
-                </button>
+                <Button variant="outline" size="sm" icon="add" onClick={handleAddVariable}>Add Variable</Button>
               </div>
-              <div className="p-md flex-1 overflow-y-auto">
+              <div className="p-4 flex-1 overflow-y-auto">
                 <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-6 flex gap-3 text-sm">
-                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>info</span>
+                  <span className="material-symbols-outlined text-xl">info</span>
                   <p>Terdapat total <b>{totalVariables} Variabel</b> form Forklift yang mereplikasi formulir standar PT United Multilift Perkasa.</p>
                 </div>
                 
@@ -198,16 +206,16 @@ export const SettingsPage = () => {
                   {categories[activeCategory].items.map((item, idx) => (
                     <li key={idx} className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition-shadow mb-3 group">
                       <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-outline cursor-grab" style={{ fontSize: '18px' }}>drag_indicator</span>
+                        <span className="material-symbols-outlined text-outline cursor-grab text-lg">drag_indicator</span>
                         <span className="font-medium text-sm">{item}</span>
                       </div>
                       <div className="flex items-center gap-4 text-xs font-medium opacity-50">
-                        <span className="bg-error-container text-on-error-container border border-error/20 px-2 py-0.5 rounded text-xs font-semibold">1 (Buruk)</span>
-                        <span className="bg-warning-container text-on-warning-container border border-warning/20 px-2 py-0.5 rounded text-xs font-semibold">2 (Cukup)</span>
-                        <span className="bg-success-container text-on-success-container border border-success/20 px-2 py-0.5 rounded text-xs font-semibold">3 (Baik)</span>
+                        <Badge variant="critical">1 (Buruk)</Badge>
+                        <Badge variant="attention">2 (Cukup)</Badge>
+                        <Badge variant="healthy">3 (Baik)</Badge>
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4 cursor-pointer">
-                          <button onClick={() => handleEditVariable(idx, item)} className="text-on-surface-variant hover:text-primary p-1 cursor-pointer"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span></button>
-                          <button onClick={() => handleDeleteVariable(idx)} className="text-on-surface-variant hover:text-error p-1 cursor-pointer"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span></button>
+                          <Button variant="ghost" size="sm" icon="edit" onClick={() => handleEditVariable(idx, item)} />
+                          <Button variant="ghost" size="sm" icon="delete" onClick={() => handleDeleteVariable(idx)} />
                         </div>
                       </div>
                     </li>
@@ -221,18 +229,18 @@ export const SettingsPage = () => {
         {/* BATTERY TAB */}
         {activeTab === 'battery' && (
           <div className="bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col flex-1 overflow-hidden">
-            <div className="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+            <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
               <div>
                 <h3 className="font-headline-lg text-headline-lg text-primary">Battery Service Report</h3>
                 <p className="text-sm text-on-surface-variant mt-1">Standar form PT Multidaya Anugrah Perkasa</p>
               </div>
-              <button className="bg-surface-container-high border border-outline-variant text-on-surface px-md py-sm rounded flex items-center gap-xs font-label-sm text-label-sm hover:bg-surface-dim transition-colors cursor-pointer">
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>edit</span>
+              <button className="bg-surface-container-high border border-outline-variant text-on-surface px-md py-sm rounded flex items-center gap-1 font-label-sm text-label-sm hover:bg-surface-dim transition-colors cursor-pointer">
+                <span className="material-symbols-outlined text-base">edit</span>
                 Edit Template
               </button>
             </div>
             
-            <div className="p-md flex-1 overflow-y-auto bg-[#f8fafc]">
+            <div className="p-4 flex-1 overflow-y-auto bg-gray-50">
               <div className="max-w-4xl mx-auto bg-white border border-outline-variant shadow-sm p-8 flex flex-col gap-6">
                 
                 {/* 1 & 3: Auto-filled System Info */}
@@ -378,10 +386,10 @@ export const SettingsPage = () => {
 
         {/* SCORING CONFIG TAB */}
         {activeTab === 'scoring' && (
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md">
+          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
             <h3 className="font-headline-lg text-headline-lg mb-md">Health Thresholds & Labels</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
-              <div className="border border-success/20 bg-success-container rounded p-md flex flex-col gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="border border-success/20 bg-success-container rounded p-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-success">Healthy</span>
                   <span className="bg-success text-white text-xs px-2 py-0.5 rounded">100%</span>
@@ -389,7 +397,7 @@ export const SettingsPage = () => {
                 <label className="text-sm text-success mt-2">Threshold (%)</label>
                 <input type="text" value="80 - 100" readOnly className="border border-success/20 bg-white rounded p-1.5 text-sm" />
               </div>
-              <div className="border border-warning/20 bg-warning-container rounded p-md flex flex-col gap-2">
+              <div className="border border-warning/20 bg-warning-container rounded p-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-warning">Attention</span>
                   <span className="bg-warning text-white text-xs px-2 py-0.5 rounded">~66%</span>
@@ -397,7 +405,7 @@ export const SettingsPage = () => {
                 <label className="text-sm text-warning mt-2">Threshold (%)</label>
                 <input type="text" value="50 - 79" readOnly className="border border-warning/20 bg-white rounded p-1.5 text-sm" />
               </div>
-              <div className="border border-error/20 bg-error-container rounded p-md flex flex-col gap-2">
+              <div className="border border-error/20 bg-error-container rounded p-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-error">Critical</span>
                   <span className="bg-error text-white text-xs px-2 py-0.5 rounded">&lt; 50%</span>
@@ -407,7 +415,7 @@ export const SettingsPage = () => {
               </div>
             </div>
             
-            <h3 className="font-headline-lg text-headline-lg mb-sm">Calculation Rule</h3>
+            <h3 className="font-headline-lg text-headline-lg mb-2">Calculation Rule</h3>
             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mt-6">
               <code className="text-sm text-primary block mb-2 font-bold bg-white p-2 border border-outline-variant rounded">Formula: (Total Score / (Total Variables × 3)) × 100%</code>
               <p className="text-sm text-on-surface-variant mt-2">Contoh:</p>
@@ -421,6 +429,35 @@ export const SettingsPage = () => {
         )}
 
       </div>
+    
+      <Modal open={promptModal.open} onClose={() => setPromptModal({ ...promptModal, open: false })}>
+        <Modal.Header onClose={() => setPromptModal({ ...promptModal, open: false })}>{promptModal.title}</Modal.Header>
+        <Modal.Body>
+          <Input 
+            autoFocus 
+            value={promptModal.value} 
+            onChange={e => setPromptModal({ ...promptModal, value: e.target.value })} 
+            placeholder="Enter value..." 
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setPromptModal({ ...promptModal, open: false })}>Cancel</Button>
+          <Button variant="primary" onClick={() => {
+            promptModal.callback(promptModal.value);
+            setPromptModal({ ...promptModal, open: false });
+          }}>Save</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ConfirmDialog 
+        open={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={confirmDeleteVariable}
+        title="Remove Variable"
+        message="Are you sure you want to remove this variable?"
+        confirmText="Remove"
+        variant="danger"
+      />
     </>
   );
 };
