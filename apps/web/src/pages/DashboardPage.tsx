@@ -198,12 +198,15 @@ const NewDashboard = ({ stats, openDetail, setPreviewImage }: { stats: any, open
               <ul className="flex flex-col gap-3">
                 {stats?.critical_alerts?.length > 0 ? stats.critical_alerts.map((alert: any, idx: number) => (
                   <li key={idx} className="bg-white border border-error/10 border-l-4 border-l-error p-4 rounded-xl shadow-sm flex flex-col gap-3 transition-transform hover:-translate-y-0.5">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-bold text-sm text-gray-900">{alert.asset_code}</p>
-                        <p className="text-sm text-error font-medium mt-1 leading-snug">{alert.notes}</p>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-bold text-sm text-gray-900">
+                            {alert.asset_code} 
+                            {alert.service_report_no && <span className="text-gray-500 font-normal ml-1 text-xs">({alert.service_report_no})</span>}
+                          </p>
+                          <p className="text-sm text-error font-medium mt-1 leading-snug">{alert.notes}</p>
+                        </div>
                       </div>
-                    </div>
                     <div className="flex gap-2 mt-1">
                         <Button variant="destructive" size="sm" onClick={() => openDetail(alert.report_id, 'FORKLIFT')}>
                           Lihat Detail

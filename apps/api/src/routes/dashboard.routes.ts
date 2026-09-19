@@ -127,7 +127,8 @@ dashboardRoutes.get('/stats', async (c) => {
         'CRITICAL' as status, 
         i.name as notes,
         fi.id as report_id,
-        fis.photo_url
+        fis.photo_url,
+        fi.additional_data->>'service_report_no' as service_report_no
       FROM forklift_inspection_scores fis
       JOIN forklift_inspections fi ON fis.inspection_id = fi.id
       JOIN forklifts f ON fi.forklift_id = f.id
