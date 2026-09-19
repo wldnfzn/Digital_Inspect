@@ -19,16 +19,16 @@ const Stack = createNativeStackNavigator();
 
 // Colors from PRD
 const COLORS = {
-  primary: '#1E40AF',
-  secondary: '#3B82F6',
-  healthy: '#16A34A',
-  attention: '#F59E0B',
-  critical: '#DC2626',
-  background: '#F8FAFC',
-  surface: '#FFFFFF',
-  border: '#E2E8F0',
-  textPrimary: '#0F172A',
-  textMuted: '#64748B'
+  primary: '#2563eb',
+  secondary: '#3b82f6',
+  healthy: '#16a34a',
+  attention: '#f59e0b',
+  critical: '#dc2626',
+  background: '#f8fafc',
+  surface: '#ffffff',
+  border: '#e2e8f0',
+  textPrimary: '#0f172a',
+  textMuted: '#64748b'
 };
 
 const Text = (props: any) => <RNText {...props} style={[{color: COLORS.textPrimary}, props.style]} />;
@@ -647,7 +647,13 @@ const ReportDetailScreen = ({ route }: any) => {
             <Text style={{ fontSize: 12, marginBottom: 4 }}>Client: {data.customer_name || 'Internal'}</Text>
             <Text style={{ fontSize: 12, marginBottom: 4 }}>Alamat: {data.customer_address || '-'}</Text>
             <Text style={{ fontSize: 12, marginBottom: 4 }}>Mekanik: {data.mechanic}</Text>
-            <Text style={{ fontSize: 12, marginBottom: 4 }}>Waktu: {data.additional_data?.started_at ? new Date(data.additional_data.started_at).toLocaleString() : '-'} s/d {new Date(data.completed_at).toLocaleString()}</Text>
+            <Text style={{ fontSize: 12, marginBottom: 4 }}>Waktu: {(() => {
+              if (!data.additional_data?.started_at) return '-';
+              const start = new Date(data.additional_data.started_at);
+              const end = new Date(data.completed_at);
+              const diffMins = Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
+              return `${start.toLocaleDateString()} ${diffMins} Menit`;
+            })()}</Text>
             {data.additional_data?.location && (
               <Text style={{ fontSize: 12, marginBottom: 4 }}>Lokasi: {data.additional_data.location.latitude.toFixed(4)}, {data.additional_data.location.longitude.toFixed(4)}</Text>
             )}
@@ -1461,58 +1467,58 @@ export default function App() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.background },
-  container: { flex: 1, padding: 16 },
-  header: { marginBottom: 24, marginTop: 20 },
-  appTitle: { fontSize: 14, color: COLORS.primary, fontWeight: '600', marginBottom: 4 },
-  greeting: { fontSize: 24, fontWeight: 'bold', color: COLORS.textPrimary },
-  pageTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: 20, marginTop: 10 },
+  container: { flex: 1, padding: 20 },
+  header: { marginBottom: 32, marginTop: 12 },
+  appTitle: { fontSize: 13, color: COLORS.primary, fontWeight: '700', marginBottom: 6, letterSpacing: 0.5, textTransform: 'uppercase' },
+  greeting: { fontSize: 26, fontWeight: '800', color: COLORS.textPrimary, letterSpacing: -0.5 },
+  pageTitle: { fontSize: 28, fontWeight: '800', color: COLORS.textPrimary, marginBottom: 24, marginTop: 12, letterSpacing: -0.5 },
   
   scanButton: {
-    backgroundColor: COLORS.primary, borderRadius: 12, padding: 24, alignItems: 'center',
-    marginBottom: 32, elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4,
+    backgroundColor: COLORS.primary, borderRadius: 16, padding: 24, alignItems: 'center',
+    marginBottom: 32, elevation: 6, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 12,
   },
-  scanButtonIcon: { fontSize: 48, marginBottom: 8 },
-  scanButtonText: { color: COLORS.surface, fontSize: 18, fontWeight: 'bold' },
-  scanButtonSubtext: { color: '#DBEAFE', fontSize: 14, marginTop: 4 },
+  scanButtonIcon: { fontSize: 48, marginBottom: 12 },
+  scanButtonText: { color: COLORS.surface, fontSize: 18, fontWeight: '700', letterSpacing: 0.5 },
+  scanButtonSubtext: { color: '#e0e7ff', fontSize: 14, marginTop: 6 },
   
-  section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: 8 },
+  section: { marginBottom: 32 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: COLORS.textPrimary, marginBottom: 16, letterSpacing: -0.3 },
   
-  statsRow: { flexDirection: 'row', gap: 12 },
-  statCard: { flex: 1, backgroundColor: COLORS.surface, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, alignItems: 'center' },
-  statNumber: { fontSize: 20, fontWeight: 'bold', color: COLORS.textPrimary },
-  statLabel: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
+  statsRow: { flexDirection: 'row', gap: 16 },
+  statCard: { flex: 1, backgroundColor: COLORS.surface, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  statNumber: { fontSize: 22, fontWeight: '800', color: COLORS.textPrimary },
+  statLabel: { fontSize: 14, color: COLORS.textMuted, marginTop: 4, fontWeight: '500' },
   
-  historyCard: { backgroundColor: COLORS.surface, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, marginBottom: 12 },
-  historyCardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  historyCardTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.textPrimary },
-  historyCardSubtext: { fontSize: 14, color: COLORS.textMuted },
+  historyCard: { backgroundColor: COLORS.surface, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  historyCardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
+  historyCardTitle: { fontSize: 16, fontWeight: '700', color: COLORS.textPrimary, marginBottom: 4 },
+  historyCardSubtext: { fontSize: 14, color: COLORS.textMuted, fontWeight: '500' },
   
-  healthBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
-  healthBadgeText: { fontSize: 12, fontWeight: 'bold' },
+  healthBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  healthBadgeText: { fontSize: 13, fontWeight: '700' },
   
-  primaryButton: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 8, alignItems: 'center' },
-  primaryButtonText: { color: COLORS.surface, fontSize: 16, fontWeight: 'bold' },
+  primaryButton: { backgroundColor: COLORS.primary, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+  primaryButtonText: { color: COLORS.surface, fontSize: 16, fontWeight: '600', letterSpacing: 0.5 },
   
   cameraContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   cameraFrame: { width: 250, height: 250, borderWidth: 2, borderColor: COLORS.primary, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
-  cameraText: { color: COLORS.primary, fontWeight: 'bold' },
-  cameraInstruction: { color: '#fff', fontSize: 16, textAlign: 'center', marginTop: 10 },
+  cameraText: { color: COLORS.primary, fontWeight: '700' },
+  cameraInstruction: { color: '#fff', fontSize: 16, textAlign: 'center', marginTop: 10, fontWeight: '500' },
   
-  avatarPlaceholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: COLORS.border, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  textMuted: { color: COLORS.textMuted, fontSize: 14 },
+  avatarPlaceholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: COLORS.border },
+  textMuted: { color: COLORS.textMuted, fontSize: 15, fontWeight: '500' },
   
-  card: { backgroundColor: COLORS.surface, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, marginBottom: 24 },
-  assetId: { fontSize: 28, fontWeight: 'bold', color: COLORS.primary, marginBottom: 4, fontFamily: 'monospace' },
-  assetType: { fontSize: 16, color: COLORS.textPrimary, marginBottom: 4 },
+  card: { backgroundColor: COLORS.surface, padding: 24, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  assetId: { fontSize: 28, fontWeight: '800', color: COLORS.primary, marginBottom: 6, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', letterSpacing: -0.5 },
+  assetType: { fontSize: 16, color: COLORS.textPrimary, marginBottom: 4, fontWeight: '600' },
   assetCustomer: { fontSize: 14, color: COLORS.textMuted },
   
-  scoreBtn: { padding: 16, borderRadius: 8, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surface, alignItems: 'center' },
-  scoreBtnText: { fontSize: 16, fontWeight: 'bold', color: COLORS.textPrimary },
+  scoreBtn: { padding: 16, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surface, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
+  scoreBtnText: { fontSize: 16, fontWeight: '700', color: COLORS.textPrimary },
   
-  criticalActionBox: { backgroundColor: '#FEF2F2', padding: 16, borderRadius: 8, borderWidth: 1, borderColor: '#FECACA' },
-  uploadBtn: { backgroundColor: '#FEE2E2', padding: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#FCA5A5', borderStyle: 'dashed', marginBottom: 12 },
-  inputLabel: { fontSize: 14, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: 4 },
-  textInput: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: 8, padding: 12, textAlignVertical: 'top' },
-  input: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: 8, padding: 12, marginBottom: 16 }
+  criticalActionBox: { backgroundColor: '#fef2f2', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: '#fecaca', marginBottom: 16 },
+  uploadBtn: { backgroundColor: '#fee2e2', padding: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#fca5a5', borderStyle: 'dashed', marginBottom: 12 },
+  inputLabel: { fontSize: 14, fontWeight: '600', color: COLORS.textPrimary, marginBottom: 8 },
+  textInput: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, minHeight: 48, fontSize: 15, color: COLORS.textPrimary },
+  input: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, minHeight: 48, marginBottom: 20, fontSize: 15, color: COLORS.textPrimary }
 });

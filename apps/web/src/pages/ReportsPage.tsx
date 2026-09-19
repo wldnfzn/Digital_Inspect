@@ -203,7 +203,13 @@ export const ReportsPage = () => {
                   <div><strong>Address:</strong> {selectedReport.customer_address || '-'}</div>
                   <div><strong>Mechanic:</strong> {selectedReport.mechanic}</div>
                   <div>
-                    <strong>Time:</strong> {selectedReport.additional_data?.started_at ? new Date(selectedReport.additional_data.started_at).toLocaleString() : '-'} s/d {new Date(selectedReport.completed_at).toLocaleString()}
+                    <strong>Time:</strong> {(() => {
+                      if (!selectedReport.additional_data?.started_at) return '-';
+                      const start = new Date(selectedReport.additional_data.started_at);
+                      const end = new Date(selectedReport.completed_at);
+                      const diffMins = Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
+                      return `${start.toLocaleDateString()} ${diffMins} Menit`;
+                    })()}
                   </div>
                   {selectedReport.additional_data?.location && (
                     <div className="col-span-2">
