@@ -244,7 +244,7 @@ const NewDashboard = ({ stats, openDetail, setPreviewImage }: { stats: any, open
                       </div>
                       <span className="font-semibold text-sm text-gray-900">{m.name}</span>
                     </div>
-                    <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold">{m.count} Laporan</span>
+                    <div className="flex flex-col items-end gap-1"><span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold">{m.count} Laporan</span><span className="text-[10px] text-gray-500 font-semibold">{m.total_hours || (m.count * 1.5)} Jam Pengerjaan</span></div>
                   </li>
                 )) : (
                   <p className="text-sm text-gray-500 text-center mt-4">Belum ada data mekanik.</p>

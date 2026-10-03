@@ -91,7 +91,7 @@ dashboardRoutes.get('/stats', async (c) => {
 
     // Mechanic Inspection Count
     const mechanicInspectionsRes = await pool.query(`
-      SELECT u.full_name as mechanic_name, COUNT(*) as count FROM (
+      SELECT u.full_name as mechanic_name, COUNT(*) as count, (COUNT(*) * 1.5) as total_hours FROM (
         SELECT mechanic_id FROM forklift_inspections WHERE ${filterCompleted}
         UNION ALL
         SELECT mechanic_id FROM battery_service_reports WHERE ${filterCompleted}
@@ -166,15 +166,15 @@ dashboardRoutes.get('/stats', async (c) => {
         })),
         activity_inspections: activityInspectionsRes.rows.map(row => ({
           date: row.date,
-          count: parseInt(row.count)
+          count: parseInt(row.count), total_hours: parseFloat(row.total_hours)
         })),
         active_tasks_trend: activeTasksRes.rows.map(row => ({
           date: row.date,
-          count: parseInt(row.count)
+          count: parseInt(row.count), total_hours: parseFloat(row.total_hours)
         })),
         mechanic_inspections: mechanicInspectionsRes.rows.map(row => ({
           name: row.mechanic_name,
-          count: parseInt(row.count)
+          count: parseInt(row.count), total_hours: parseFloat(row.total_hours)
         })),
         recent_inspections: recentInspections,
         critical_alerts: criticalAlertsRes.rows,
