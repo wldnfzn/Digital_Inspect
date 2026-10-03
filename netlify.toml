@@ -1,7 +1,6 @@
 [build]
-  base = "apps/web"
-  command = "npm run build"
-  publish = "dist"
+  command = "npm run build -w @digital-inspect/shared && npm run build -w web"
+  publish = "apps/web/dist"
 
 [[redirects]]
   from = "/*"
