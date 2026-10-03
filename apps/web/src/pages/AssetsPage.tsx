@@ -19,7 +19,7 @@ export const AssetsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ asset_code: '', model: '', year: '', brand: '', type: '', voltage: '', customer_id: '' });
+  const [formData, setFormData] = useState({ asset_code: '', model: '', year: '', brand: '', type: '', capacity_ah: '', type: '', voltage: '', customer_id: '' });
   const [isSaving, setIsSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export const AssetsPage = () => {
   }, [tab]);
 
   const openAddModal = () => {
-    setFormData({ asset_code: '', model: '', year: '', brand: '', type: '', voltage: '', customer_id: '' });
+    setFormData({ asset_code: '', model: '', year: '', brand: '', type: '', capacity_ah: '', type: '', voltage: '', customer_id: '' });
     setModalMode('add');
     setSelectedId(null);
     setIsModalOpen(true);
@@ -165,6 +165,8 @@ export const AssetsPage = () => {
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Asset Code</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">{tab === 'forklift' ? 'Model' : 'Brand'}</th>
                 {tab === 'forklift' && <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Year</th>}
+                  {tab === 'battery' && <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipe</th>}
+                  {tab === 'battery' && <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kapasitas</th>}
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">{tab === 'forklift' ? 'Health Score' : 'Voltage'}</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
@@ -172,9 +174,9 @@ export const AssetsPage = () => {
             </thead>
             <tbody className="text-sm text-gray-700">
               {loading ? (
-                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="px-5 py-3.5 text-center text-gray-500">Loading {tab}s...</td></tr>
+                <tr><td colSpan={tab === 'forklift' ? 6 : 7} className="px-5 py-3.5 text-center text-gray-500">Loading {tab}s...</td></tr>
               ) : filteredItems.length === 0 ? (
-                <tr><td colSpan={tab === 'forklift' ? 6 : 5} className="px-5 py-3.5 text-center text-gray-500">No {tab}s found</td></tr>
+                <tr><td colSpan={tab === 'forklift' ? 6 : 7} className="px-5 py-3.5 text-center text-gray-500">No {tab}s found</td></tr>
               ) : filteredItems.map(item => (
                 <tr key={item.id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 group">
                   <td className="px-5 py-3.5 font-medium text-primary">{item.asset_code}</td>
@@ -182,6 +184,8 @@ export const AssetsPage = () => {
                     {tab === 'forklift' ? (item.model || '-') : (item.brand || '-')}
                   </td>
                   {tab === 'forklift' && <td className="px-5 py-3.5 text-gray-600">{item.year || '-'}</td>}
+                    {tab === 'battery' && <td className="px-5 py-3.5 text-gray-600">{item.type || '-'}</td>}
+                    {tab === 'battery' && <td className="px-5 py-3.5 text-gray-600">{item.capacity_ah ? item.capacity_ah + ' Ah' : '-'}</td>}
                   <td className="px-5 py-3.5 text-gray-600">{item.customer_name || '-'}</td>
                   <td className="px-5 py-3.5">
                     {tab === 'forklift' ? (

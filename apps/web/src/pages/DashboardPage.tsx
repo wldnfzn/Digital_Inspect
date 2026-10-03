@@ -32,10 +32,10 @@ const NewDashboard = ({ stats, openDetail, setPreviewImage }: { stats: any, open
     <div className="flex flex-col gap-6" id="dashboard-content">
       
       {/* Top Row: KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <KPICard title="Total Forklift" value={stats?.total_forklifts || 0} icon="forklift" bgClass="bg-blue-50" textClass="text-blue-600" />
         <KPICard title="Total Baterai" value={stats?.total_batteries || 0} icon="battery_charging_full" bgClass="bg-blue-50" textClass="text-blue-600" />
-        <KPICard title="Total Karyawan" value={stats?.total_employees || 0} icon="badge" bgClass="bg-gray-50" textClass="text-gray-600" />
+        
         <KPICard title="Inspeksi Selesai" value={stats?.completed_this_month || 0} icon="task_alt" bgClass="bg-green-50" textClass="text-success" />
         <KPICard title="Inspeksi Berjalan" value={stats?.ongoing_tasks || 0} icon="pending_actions" bgClass="bg-amber-50" textClass="text-warning" />
       </div>
@@ -244,7 +244,7 @@ const NewDashboard = ({ stats, openDetail, setPreviewImage }: { stats: any, open
                       </div>
                       <span className="font-semibold text-sm text-gray-900">{m.name}</span>
                     </div>
-                    <div className="flex flex-col items-end gap-1"><span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold">{m.count} Laporan</span><span className="text-[10px] text-gray-500 font-semibold">{m.total_hours || (m.count * 1.5)} Jam Pengerjaan</span></div>
+                    <div className="flex flex-col items-end gap-1"><span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold">{m.count} Laporan</span></div>
                   </li>
                 )) : (
                   <p className="text-sm text-gray-500 text-center mt-4">Belum ada data mekanik.</p>

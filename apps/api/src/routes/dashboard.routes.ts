@@ -91,7 +91,7 @@ dashboardRoutes.get('/stats', async (c) => {
 
     // Mechanic Inspection Count
     const mechanicInspectionsRes = await pool.query(`
-      SELECT u.full_name as mechanic_name, COUNT(*) as count, (COUNT(*) * 1.5) as total_hours FROM (
+      SELECT u.full_name as mechanic_name, COUNT(*) as count, (0) as total_hours FROM (
         SELECT mechanic_id FROM forklift_inspections WHERE ${filterCompleted}
         UNION ALL
         SELECT mechanic_id FROM battery_service_reports WHERE ${filterCompleted}

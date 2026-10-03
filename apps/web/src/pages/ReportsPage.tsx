@@ -109,6 +109,7 @@ export const ReportsPage = () => {
             <thead>
               <tr className="bg-surface-container-low text-on-surface-variant border-b border-outline-variant">
                 <th className="p-2 pl-md font-label-sm text-label-sm font-semibold">Completed Date</th>
+                  <th className="p-2 font-label-sm text-label-sm font-semibold">Report Code</th>
                 <th className="p-2 font-label-sm text-label-sm font-semibold">Asset Type</th>
                 <th className="p-2 font-label-sm text-label-sm font-semibold">Asset Code</th>
                 <th className="p-2 font-label-sm text-label-sm font-semibold">Customer</th>
@@ -125,7 +126,8 @@ export const ReportsPage = () => {
               ) : (
                 filteredReports.map(r => (
                   <tr key={r.id} className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
-                    <td className="p-2 pl-md">{new Date(r.date).toLocaleString()}</td>
+                    <td className="p-2 pl-md">{new Date(r.date).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                      <td className="p-2 font-medium text-primary">{r.report_code || '-'}</td>
                     <td className="p-2 text-on-surface-variant">
                       <span className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-base">

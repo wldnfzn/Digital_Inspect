@@ -47,10 +47,10 @@ inspectionsRoutes.get('/tasks', roleGuard(['SUPER_ADMIN', 'MANAGER', 'DIRECTOR']
       SELECT t.*, 
              f.asset_code as forklift_code, 
              b.asset_code as battery_code,
-             u.full_name as mechanic_name
+             u.full_name as mechanic_name, COALESCE(cf.name, cb.name) as customer_name
       FROM inspection_tasks t
-      LEFT JOIN forklifts f ON t.forklift_id = f.id
-      LEFT JOIN batteries b ON t.battery_id = b.id
+      LEFT JOIN forklifts f ON t.forklift_id = f.id LEFT JOIN customers cf ON f.customer_id = cf.id
+      LEFT JOIN batteries b ON t.battery_id = b.id LEFT JOIN customers cb ON b.customer_id = cb.id
       LEFT JOIN users u ON t.assigned_to = u.id
       ORDER BY t.created_at DESC
     `;
@@ -100,8 +100,8 @@ inspectionsRoutes.get('/my-tasks', async (c) => {
              f.asset_code as forklift_code, 
              b.asset_code as battery_code
       FROM inspection_tasks t
-      LEFT JOIN forklifts f ON t.forklift_id = f.id
-      LEFT JOIN batteries b ON t.battery_id = b.id
+      LEFT JOIN forklifts f ON t.forklift_id = f.id LEFT JOIN customers cf ON f.customer_id = cf.id
+      LEFT JOIN batteries b ON t.battery_id = b.id LEFT JOIN customers cb ON b.customer_id = cb.id
       WHERE t.assigned_to = ${user.userId} AND t.status != 'COMPLETED'
       ORDER BY t.scheduled_date ASC
     `;
@@ -119,7 +119,7 @@ inspectionsRoutes.get('/asset/:id', async (c) => {
     
     if (type === 'battery') {
       const reports = await sql`
-        SELECT b.id, 'BATTERY' as asset_type, b.voltage_reading as score, b.completed_at as date, u.full_name as mechanic_name
+        SELECT b.id, 'BATTERY' as asset_type, b.voltage_reading as score, b.completed_at as date, u.full_name as mechanic_name, COALESCE(cf.name, cb.name) as customer_name
         FROM battery_service_reports b
         JOIN users u ON b.mechanic_id = u.id
         WHERE b.battery_id = ${id}
@@ -128,7 +128,7 @@ inspectionsRoutes.get('/asset/:id', async (c) => {
       return c.json({ data: reports });
     } else {
       const reports = await sql`
-        SELECT fi.id, 'FORKLIFT' as asset_type, fi.health_percentage as score, fi.health_status as status, fi.completed_at as date, u.full_name as mechanic_name
+        SELECT fi.id, 'FORKLIFT' as asset_type, fi.health_percentage as score, fi.health_status as status, fi.completed_at as date, u.full_name as mechanic_name, COALESCE(cf.name, cb.name) as customer_name
         FROM forklift_inspections fi
         JOIN users u ON fi.mechanic_id = u.id
         WHERE fi.forklift_id = ${id}

@@ -19,7 +19,7 @@ reportsRoutes.get('/', async (c) => {
         f.asset_code,
         fi.health_percentage as score,
         fi.health_status as status,
-        fi.completed_at as date,
+        fi.completed_at as date, fi.additional_data->>'service_report_no' as report_code,
         u.full_name as mechanic,
         c.name as customer
       FROM forklift_inspections fi
@@ -37,7 +37,7 @@ reportsRoutes.get('/', async (c) => {
         ba.asset_code,
         b.voltage_reading as score,
         CASE WHEN b.water_level = 'LOW' THEN 'ATTENTION' ELSE 'HEALTHY' END as status,
-        b.completed_at as date,
+        b.completed_at as date, b.additional_data->>'service_report_no' as report_code,
         u.full_name as mechanic,
         c.name as customer
       FROM battery_service_reports b

@@ -80,6 +80,7 @@ export const InspectionsPage = () => {
   const filteredTasks = tasks.filter(t => {
     const code = (t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code) || '';
     const mechanic = t.mechanic_name || t.assigned_to || '';
+      const customer = t.customer_name || '';
     const searchLower = search.toLowerCase();
     
     const matchesSearch = code.toLowerCase().includes(searchLower) || mechanic.toLowerCase().includes(searchLower);
@@ -206,7 +207,7 @@ export const InspectionsPage = () => {
               ) : filteredTasks.map(t => (
                 <tr key={t.id} className="hover:bg-blue-50/30 transition-colors border-b border-gray-100 group">
                   <td className="px-5 py-3.5">{new Date(t.scheduled_date).toLocaleDateString()}</td>
-                  <td className="px-5 py-3.5 font-medium text-primary">{t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code}</td>
+                  <td className="px-5 py-3.5"><div className="flex items-center gap-2"><span className="font-medium text-primary">{t.asset_type === 'FORKLIFT' ? t.forklift_code : t.battery_code}</span>{t.customer_name && <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-200">{t.customer_name}</span>}</div></td>
                   <td className="px-5 py-3.5">{t.asset_type}</td>
                   <td className="px-5 py-3.5">{t.mechanic_name || t.assigned_to}</td>
                   <td className="px-5 py-3.5">
