@@ -4,7 +4,7 @@ import { authMiddleware, roleGuard } from '../middleware/auth';
 
 const dashboardRoutes = new Hono();
 dashboardRoutes.use('*', authMiddleware);
-dashboardRoutes.use('*', roleGuard(['SUPER_ADMIN', 'DIRECTOR', 'MANAGER']));
+dashboardRoutes.use('*', roleGuard(['SUPER_ADMIN', 'DIRECTOR', 'MANAGER', 'GENERAL_MANAGER']));
 
 dashboardRoutes.get('/stats', async (c) => {
   try {

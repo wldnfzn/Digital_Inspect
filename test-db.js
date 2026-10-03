@@ -1,1 +1,0 @@
-require('dotenv').config({path: 'apps/api/.env'}); const postgres = require('postgres'); const sql = postgres(process.env.DATABASE_URL); sql('SELECT * FROM inspection_categories').then(console.log).catch(console.error).finally(() => process.exit(0));

@@ -6,12 +6,9 @@ const types_1 = require("../types");
 function calculateHealthScore(totalScore, totalItems) {
     if (totalItems === 0)
         return 0;
-    // Maximum possible score is 3 per item
-    // Score formula from PRD: ((Total Score - Total Items) / (2 * Total Items)) * 100
-    // Let's breakdown: Total Score ranges from (1 * items) to (3 * items)
-    // If all are 3 (Bagus), Score = (3*items - items) / (2*items) * 100 = (2*items)/(2*items) * 100 = 100%
-    // If all are 1 (Buruk), Score = (1*items - items) / ... = 0%
-    const score = ((totalScore - totalItems) / (2 * totalItems)) * 100;
+    // Score formula requested by user: Total Score / (Total Items * 3) * 100
+    // e.g., 58 items * 3 = 174 max score. 174/174 = 100%. 116/174 = 66%.
+    const score = (totalScore / (totalItems * 3)) * 100;
     return Math.round(score * 100) / 100; // Round to 2 decimal places
 }
 function determineHealthStatus(healthScore, hasCriticalIssue) {

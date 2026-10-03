@@ -1,1 +1,0 @@
-require('dotenv').config(); const postgres = require('postgres'); const sql = postgres(process.env.DATABASE_URL); sql('ALTER TABLE forklift_inspections ADD COLUMN IF NOT EXISTS additional_data JSONB').then(()=>console.log('done')).catch(console.error).finally(()=>process.exit(0));

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { UserRole } from '../types';
+import { UserRole, ROLE_LABELS, MONITOR_ROLES } from '@digital-inspect/shared';
 import { api } from '../lib/api';
 
 const Sidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) => {
@@ -63,17 +63,40 @@ const Sidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: bool
         
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1 custom-scrollbar">
           <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2 px-4">Menu</div>
-          <NavItem to="/dashboard" icon="dashboard" label="Dashboard" />
           
-          {(user?.role === UserRole.SUPER_ADMIN || user?.role === UserRole.MANAGER) && (
+          {user?.role !== UserRole.SALES && user?.role !== UserRole.TECH_INVENTORY && (
+            <NavItem to="/dashboard" icon="dashboard" label="Dashboard" />
+          )}
+          
+          {/* SALES, MONITOR_ROLES, MANAGER can see Tickets */}
+          {(user?.role === UserRole.SALES || user?.role === UserRole.MANAGER || MONITOR_ROLES.includes(user?.role as any)) && (
+            <NavItem to="/tickets" icon="confirmation_number" label="Tiket Order" />
+          )}
+          
+          {/* TECH_INVENTORY, MONITOR_ROLES, MANAGER can see Spareparts */}
+          {(user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.MANAGER || MONITOR_ROLES.includes(user?.role as any)) && (
+            <NavItem to="/spareparts" icon="build" label="Pengadaan Sparepart" />
+          )}
+          
+          {/* Customers visible to SALES (to pick), MANAGER, MONITOR */}
+          {(user?.role === UserRole.SALES || user?.role === UserRole.MANAGER || MONITOR_ROLES.includes(user?.role as any)) && (
             <NavItem to="/customers" icon="groups" label="Customers" />
           )}
           
-          <NavItem to="/assets" icon="category" label="Assets" />
-          <NavItem to="/inspections" icon="fact_check" label="Inspections" />
-          <NavItem to="/reports" icon="analytics" label="Reports" />
+          {/* Assets visible to SALES (to pick), MANAGER, MONITOR, TECH_INVENTORY (to see asset details) */}
+          {(user?.role === UserRole.SALES || user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.MANAGER || MONITOR_ROLES.includes(user?.role as any)) && (
+            <NavItem to="/assets" icon="category" label="Assets" />
+          )}
           
-          {(user?.role === UserRole.SUPER_ADMIN || user?.role === UserRole.MANAGER) && (
+          {(user?.role === UserRole.MANAGER || MONITOR_ROLES.includes(user?.role as any)) && (
+            <NavItem to="/inspections" icon="fact_check" label="Inspections" />
+          )}
+          
+          {(user?.role === UserRole.MANAGER || user?.role === UserRole.TECH_INVENTORY || MONITOR_ROLES.includes(user?.role as any)) && (
+            <NavItem to="/reports" icon="analytics" label="Reports" />
+          )}
+          
+          {(user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
             <NavItem to="/qr-codes" icon="qr_code_2" label="QR Codes" />
           )}
           
@@ -94,7 +117,7 @@ const Sidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: bool
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
-                <p className="text-[11px] text-gray-500 truncate">{user?.role}</p>
+                <p className="text-[11px] text-gray-500 truncate">{ROLE_LABELS[user?.role as UserRole] || user?.role}</p>
               </div>
            </div>
         </div>

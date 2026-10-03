@@ -104,6 +104,199 @@ const HomeScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchTasks();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const fetchTasks = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/inspections/my-tasks');
+      setTasks(res.data.data.filter((t: any) => t.status !== 'COMPLETED'));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>Halo, {user?.full_name}</Text>
+          <Text style={styles.headerSubtitle}>Mekanik - Digital Inspect</Text>
+        </View>
+        <Image source={{ uri: user?.avatar_url || 'https://i.pravatar.cc/150?img=11' }} style={styles.headerAvatar} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tugas & Jadwal Saya</Text>
+          {loading ? (
+            <ActivityIndicator style={{ marginTop: 20 }} />
+          ) : (
+            <View>
+              {tasks.filter((t:any) => t.draft_data != null).length > 0 && (
+                <View>
+                  <Text style={[styles.sectionTitle, {marginTop: 20, color: COLORS.primary}]}>Draft Inspeksi (Belum Selesai)</Text>
+                  {tasks.filter((t:any) => t.draft_data != null).map((task: any) => (
+                    <View key={task.id} style={[styles.historyCard, { borderColor: COLORS.primary, borderLeftWidth: 4 }]}>
+                      <View style={styles.historyCardRow}>
+                        <View>
+                          <Text style={styles.historyItemTitle}>{task.asset_type === 'FORKLIFT' ? task.forklift_code : task.battery_code}</Text>
+                          <Text style={styles.historyItemDesc}>{task.asset_type}</Text>
+                          <Text style={[styles.historyItemDesc, { color: COLORS.primary, fontWeight: 'bold' }]}>Melanjutkan Draft...</Text>
+                        </View>
+                        <TouchableOpacity style={styles.primaryButtonSmall} onPress={() => {
+                          if (task.asset_type === 'FORKLIFT') navigation.navigate('InspectionForm', { id: task.forklift_id, task_id: task.id });
+                          else navigation.navigate('BatteryForm', { id: task.battery_id, task_id: task.id });
+                        }}>
+                          <Text style={styles.primaryButtonSmallText}>Lanjut</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              <Text style={[styles.sectionTitle, {marginTop: 20}]}>Tugas Baru</Text>
+              {tasks.filter((t:any) => t.draft_data == null).length === 0 ? (
+                <Text style={{ textAlign: 'center', color: COLORS.textMuted, marginTop: 10 }}>Tidak ada tugas baru.</Text>
+              ) : (
+                tasks.filter((t:any) => t.draft_data == null).map((task: any) => (
+                  <View key={task.id} style={[styles.historyCard, { borderColor: COLORS.attention, borderLeftWidth: 4 }]}>
+                    <View style={styles.historyCardRow}>
+                      <View>
+                        <Text style={styles.historyItemTitle}>{task.asset_type === 'FORKLIFT' ? task.forklift_code : task.battery_code}</Text>
+                        <Text style={styles.historyItemDesc}>{task.asset_type}</Text>
+                      </View>
+                      <TouchableOpacity style={styles.primaryButtonSmall} onPress={() => {
+                        if (task.asset_type === 'FORKLIFT') navigation.navigate('InspectionForm', { id: task.forklift_id, task_id: task.id });
+                        else navigation.navigate('BatteryForm', { id: task.battery_id, task_id: task.id });
+                      }}>
+                        <Text style={styles.primaryButtonSmallText}>Mulai</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, Text as RNText, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput as RNTextInput, ActivityIndicator, Keyboard, Platform, Button } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from './src/lib/api';
+import * as Location from 'expo-location';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as ImagePicker from 'expo-image-picker';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Ionicons } from '@expo/vector-icons';
+import { getBatteryHtml } from './src/utils/print-html';
+
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+// Colors from PRD
+const COLORS = {
+  primary: '#2563eb',
+  secondary: '#3b82f6',
+  healthy: '#16a34a',
+  attention: '#f59e0b',
+  critical: '#dc2626',
+  background: '#f8fafc',
+  surface: '#ffffff',
+  border: '#e2e8f0',
+  textPrimary: '#0f172a',
+  textMuted: '#64748b'
+};
+
+const Text = (props: any) => <RNText {...props} style={[{color: COLORS.textPrimary}, props.style]} />;
+const TextInput = (props: any) => <RNTextInput placeholderTextColor={COLORS.textMuted} {...props} style={[{color: COLORS.textPrimary}, props.style]} />;
+
+// --- AUTH CONTEXT ---
+export const AuthContext = React.createContext<{user: any, login: any, logout: any}>({
+  user: null, login: async () => {}, logout: async () => {}
+});
+
+// --- SCREENS ---
+
+const LoginScreen = () => {
+  const [email, setEmail] = useState('budi@ump.co.id');
+  const [password, setPassword] = useState('password123');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = React.useContext(AuthContext);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await login(email, password);
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', padding: 20 }]}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', color: COLORS.primary, textAlign: 'center', marginBottom: 30 }}>
+        UMP Digital Inspect
+      </Text>
+      
+      <View style={{ backgroundColor: COLORS.surface, padding: 20, borderRadius: 12, elevation: 2 }}>
+        {error ? <Text style={{ color: COLORS.critical, marginBottom: 10 }}>{error}</Text> : null}
+        
+        <Text style={styles.inputLabel}>Email</Text>
+        <TextInput 
+          style={styles.input} 
+          value={email} 
+          onChangeText={setEmail} 
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+
+        <Text style={styles.inputLabel}>Password</Text>
+        <TextInput 
+          style={styles.input} 
+          value={password} 
+          onChangeText={setPassword} 
+          secureTextEntry
+        />
+
+        <TouchableOpacity 
+          style={[styles.primaryButton, { marginTop: 20 }]} 
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Sign In</Text>}
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const HomeScreen = ({ navigation }: any) => {
+  const { user } = React.useContext(AuthContext);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
     // Refresh tasks whenever HomeScreen comes into focus
     const unsubscribe = navigation.addListener('focus', () => {
       fetchTasks();
@@ -861,17 +1054,72 @@ const InspectionFormScreen = ({ route, navigation }: any) => {
   const [partsRecommended, setPartsRecommended] = useState<any[]>([]);
   const [actionFlags, setActionFlags] = useState<string[]>([]);
 
+  
   useEffect(() => {
-    api.get('/settings/templates/forklift')
-      .then(res => {
+    const loadDraftAndTemplate = async () => {
+      try {
+        const res = await api.get('/settings/templates/forklift');
         setCategories(res.data.data || []);
+        
+        if (task_id) {
+          const taskRes = await api.get('/inspections/my-tasks');
+          const task = taskRes.data.data.find((t: any) => t.id === task_id);
+          let draft = null;
+          
+          if (task && task.draft_data) {
+            draft = task.draft_data;
+          } else {
+            const localDraftStr = await AsyncStorage.getItem('draft_forklift_' + task_id);
+            if (localDraftStr) draft = JSON.parse(localDraftStr);
+          }
+          
+          if (draft) {
+            if (draft.startedAt) { setStartedAt(draft.startedAt); setIsStarted(true); }
+            if (draft.currentCatIdx !== undefined) setCurrentCatIdx(draft.currentCatIdx);
+            if (draft.currentItemIdx !== undefined) setCurrentItemIdx(draft.currentItemIdx);
+            if (draft.scores) setScores(draft.scores);
+            if (draft.notes) setNotes(draft.notes);
+            if (draft.hourMeter) setHourMeter(draft.hourMeter);
+            if (draft.workingConditions) setWorkingConditions(draft.workingConditions);
+            if (draft.serviceType) setServiceType(draft.serviceType);
+            if (draft.location) setLocation(draft.location);
+            if (draft.partsUsed) setPartsUsed(draft.partsUsed);
+            if (draft.partsRecommended) setPartsRecommended(draft.partsRecommended);
+            if (draft.actionFlags) setActionFlags(draft.actionFlags);
+          } else if (task && task.started_at) {
+            setStartedAt(task.started_at);
+            setIsStarted(true);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
         setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
+      }
+    };
+    loadDraftAndTemplate();
+  }, [task_id]);
+
+  useEffect(() => {
+    if (!isStarted || !task_id) return;
+    
+    const draft = {
+      startedAt, currentCatIdx, currentItemIdx, scores, notes, hourMeter, workingConditions, serviceType, location, partsUsed, partsRecommended, actionFlags
+    };
+    
+    const saveDraft = async () => {
+      try {
+        await AsyncStorage.setItem('draft_forklift_' + task_id, JSON.stringify(draft));
+        await api.put('/inspections/tasks/' + task_id + '/draft', { draft_data: draft, started_at: startedAt });
+      } catch (e) {
+        console.log('Auto-save error', e);
+      }
+    };
+    
+    const timer = setTimeout(saveDraft, 1000);
+    return () => clearTimeout(timer);
+  }, [isStarted, currentCatIdx, currentItemIdx, scores, notes, hourMeter, workingConditions, serviceType, location, partsUsed, partsRecommended, actionFlags]);
+
 
   if (loading) return <View style={styles.container}><Text>Loading items...</Text></View>;
   if (categories.length === 0) return <Text style={{ padding: 20 }}>No template found.</Text>;
@@ -1417,22 +1665,61 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
+  
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const userData = await AsyncStorage.getItem('user');
-        if (token && userData) {
-          setUser(JSON.parse(userData));
+    const loadDraft = async () => {
+      if (task_id) {
+        try {
+          const taskRes = await api.get('/inspections/my-tasks');
+          const task = taskRes.data.data.find((t: any) => t.id === task_id);
+          let draft = null;
+          
+          if (task && task.draft_data) {
+            draft = task.draft_data;
+          } else {
+            const localDraftStr = await AsyncStorage.getItem('draft_battery_' + task_id);
+            if (localDraftStr) draft = JSON.parse(localDraftStr);
+          }
+          
+          if (draft) {
+            if (draft.startedAt) { setStartedAt(draft.startedAt); setIsStarted(true); }
+            if (draft.cells) setCells(draft.cells);
+            if (draft.accessories) setAccessories(draft.accessories);
+            if (draft.cables) setCables(draft.cables);
+            if (draft.connectors) setConnectors(draft.connectors);
+            if (draft.overall_condition) setOverallCondition(draft.overall_condition);
+            if (draft.cleaning_done !== undefined) setCleaningDone(draft.cleaning_done);
+            if (draft.notes) setNotes(draft.notes);
+            if (draft.currentStep !== undefined) setCurrentStep(draft.currentStep);
+          } else if (task && task.started_at) {
+            setStartedAt(task.started_at);
+            setIsStarted(true);
+          }
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsInitializing(false);
       }
     };
-    initAuth();
-  }, []);
+    loadDraft();
+  }, [task_id]);
+
+  useEffect(() => {
+    if (!isStarted || !task_id) return;
+    const draft = {
+      startedAt, cells, accessories, cables, connectors, overall_condition: overallCondition, cleaning_done: cleaningDone, notes, currentStep
+    };
+    const saveDraft = async () => {
+      try {
+        await AsyncStorage.setItem('draft_battery_' + task_id, JSON.stringify(draft));
+        await api.put('/inspections/tasks/' + task_id + '/draft', { draft_data: draft, started_at: startedAt });
+      } catch (e) {
+        console.log('Auto-save error', e);
+      }
+    };
+    const timer = setTimeout(saveDraft, 1000);
+    return () => clearTimeout(timer);
+  }, [isStarted, currentStep, cells, accessories, cables, connectors, overallCondition, cleaningDone, notes]);
+
 
   const login = async (email: string, pass: string) => {
     Keyboard.dismiss();

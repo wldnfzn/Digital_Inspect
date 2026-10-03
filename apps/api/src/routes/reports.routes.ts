@@ -6,7 +6,7 @@ import { logAudit } from '../lib/audit';
 const reportsRoutes = new Hono();
 
 reportsRoutes.use('*', authMiddleware);
-reportsRoutes.use('*', roleGuard(['SUPER_ADMIN', 'MANAGER']));
+reportsRoutes.use('*', roleGuard(['SUPER_ADMIN', 'MANAGER', 'DIRECTOR', 'GENERAL_MANAGER']));
 
 // GET /reports
 reportsRoutes.get('/', async (c) => {

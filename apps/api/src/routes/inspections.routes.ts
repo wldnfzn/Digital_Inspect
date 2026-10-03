@@ -41,7 +41,7 @@ inspectionsRoutes.delete('/tasks/:id', roleGuard(['SUPER_ADMIN', 'MANAGER']), as
 });
 
 // Get all tasks (for Manager/Admin)
-inspectionsRoutes.get('/tasks', roleGuard(['SUPER_ADMIN', 'MANAGER', 'DIRECTOR']), async (c) => {
+inspectionsRoutes.get('/tasks', roleGuard(['SUPER_ADMIN', 'MANAGER', 'DIRECTOR', 'GENERAL_MANAGER']), async (c) => {
   try {
     const tasks = await sql`
       SELECT t.*, 
@@ -207,6 +207,7 @@ inspectionsRoutes.post('/forklift', async (c) => {
       const serviceReportNo = `SR-FL-${dateStr}-${count.toString().padStart(3, '0')}`;
       
       const finalAdditionalData = { ...(additional_data || {}), service_report_no: serviceReportNo };
+      const startedAt = additional_data?.started_at ? new Date(additional_data.started_at) : null;
 
       // Insert Inspection
       const insp = await tx`
@@ -269,6 +270,7 @@ inspectionsRoutes.post('/battery', async (c) => {
       const serviceReportNo = `SR-BT-${dateStr}-${count.toString().padStart(3, '0')}`;
       
       const finalReportData = { ...(full_report_data || {}), service_report_no: serviceReportNo };
+      const startedAt = full_report_data?.started_at ? new Date(full_report_data.started_at) : null;
 
       // Insert Report
       const report = await tx`
@@ -336,6 +338,26 @@ inspectionsRoutes.get('/battery/:id', async (c) => {
     return c.json({ data: report[0] });
   } catch (error: any) {
     return c.json({ error: error.message || 'Internal Server Error' }, 500);
+  }
+});
+
+
+inspectionsRoutes.put('/tasks/:id/draft', async (c) => {
+  try {
+    const user = c.get('user');
+    const id = c.req.param('id');
+    const { draft_data, started_at } = await c.req.json();
+    
+    await sql`
+      UPDATE inspection_tasks 
+      SET draft_data = ${sql.json(draft_data)}, 
+          started_at = COALESCE(started_at, ${started_at ? new Date(started_at) : null})
+      WHERE id = ${id} AND assigned_to = ${user.userId}
+    `;
+    
+    return c.json({ status: 'ok' });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
   }
 });
 

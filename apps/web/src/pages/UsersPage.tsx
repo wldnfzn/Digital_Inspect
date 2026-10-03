@@ -119,6 +119,9 @@ export const UsersPage = () => {
       case UserRole.SUPER_ADMIN: return 'bg-purple-50 text-purple-700 border border-purple-200';
       case UserRole.DIRECTOR: return 'bg-blue-50 text-blue-700 border border-blue-200';
       case UserRole.MANAGER: return 'bg-amber-50 text-amber-700 border border-amber-200';
+      case 'GENERAL_MANAGER': return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'SALES': return 'bg-pink-50 text-pink-700 border border-pink-200';
+      case 'TECH_INVENTORY': return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
       default: return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
@@ -151,8 +154,8 @@ export const UsersPage = () => {
               <option value="ALL">All Roles</option>
               <option value={UserRole.SUPER_ADMIN}>Super Admin</option>
               <option value={UserRole.DIRECTOR}>Director</option>
-              <option value={UserRole.MANAGER}>Manager</option>
-              <option value="MECHANIC">Mechanic</option>
+              <option value={UserRole.MANAGER}>Customer Care Division Leader</option>
+              <option value="MECHANIC">Customer Care Division Mekanik</option>`n              <option value="GENERAL_MANAGER">General Manager</option>`n              <option value="SALES">Sales</option>`n              <option value="TECH_INVENTORY">Technical & Inventory</option>
             </Select>
           </div>
         </div>
@@ -246,8 +249,8 @@ export const UsersPage = () => {
             >
               <option value={UserRole.SUPER_ADMIN}>Super Admin</option>
               <option value={UserRole.DIRECTOR}>Director</option>
-              <option value={UserRole.MANAGER}>Manager</option>
-              <option value="MECHANIC">Mechanic</option>
+              <option value={UserRole.MANAGER}>Customer Care Division Leader</option>
+              <option value="MECHANIC">Customer Care Division Mekanik</option>`n              <option value="GENERAL_MANAGER">General Manager</option>`n              <option value="SALES">Sales</option>`n              <option value="TECH_INVENTORY">Technical & Inventory</option>
             </Select>
           </form>
         </Modal.Body>

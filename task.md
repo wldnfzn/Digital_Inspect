@@ -1,0 +1,27 @@
+# Restrukturisasi Role & Fitur Baru (Web & Mobile)
+
+- [x] **1. Persiapan & Cleanup**
+  - [x] Hapus script sementara dari pekerjaan sebelumnya (`mod.js`, `alter_db.*`, dll)
+  - [x] Tambahkan ke `.gitignore`
+- [x] **2. Database & Tipe (Supabase)**
+  - [x] Buat file `supabase_migration_002.sql` (Tiket, Sparepart, Kolom Draft)
+  - [x] Update `packages/shared/src/types/index.ts` (Tipe Role, Tiket, Sparepart)
+- [x] **3. Backend API (`apps/api`)**
+  - [x] Buat `tickets.routes.ts`
+  - [x] Buat `spareparts.routes.ts`
+  - [x] Daftarkan route di `index.ts`
+  - [x] Update `inspections.routes.ts` (Endpoint simpan draft & auto-complete tiket)
+  - [x] Update `dashboard.routes.ts` (Hitung durasi dari `started_at`, statistik tiket/sparepart)
+  - [x] Update `roleGuard` di berbagai route untuk akses `GENERAL_MANAGER` / `DIRECTOR` (Read-only)
+- [x] **4. Web Frontend (`apps/web`)**
+  - [x] Update `MainLayout.tsx` (Matriks akses Sidebar & Label Role)
+  - [x] Update `App.tsx` (Routing & Redirect)
+  - [x] Buat `TicketsPage.tsx`
+  - [x] Buat `SparepartRequestsPage.tsx`
+  - [x] Update `UsersPage.tsx` (Pilihan role baru)
+  - [x] Update `DashboardPage.tsx` (Widget tiket & sparepart)
+- [ ] **5. Mobile App (`apps/app`)**
+  - [ ] Sinkronisasi tipe baru (draft data & started_at)
+  - [ ] Logika Auto-Save (Lokal + Push ke API `PUT /tasks/:id/draft`)
+  - [ ] Ubah UI Dashboard Mobile (Tampilkan Draft Inspeksi)
+  - [ ] Tambahkan pencatatan waktu `started_at` saat mulai inspeksi

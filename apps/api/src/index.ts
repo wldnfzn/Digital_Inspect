@@ -20,6 +20,8 @@ import dashboardRoutes from './routes/dashboard.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import auditRoutes from './routes/audit.routes';
 import settingsRoutes from './routes/settings.routes';
+import ticketsRoutes from './routes/tickets.routes';
+import sparepartsRoutes from './routes/spareparts.routes';
 
 const app = new Hono();
 
@@ -129,6 +131,8 @@ app.route('/audit', auditRoutes);
 app.route('/users', usersRoutes);
 app.route('/reports', reportsRoutes);
 app.route('/settings', settingsRoutes);
+app.route('/tickets', ticketsRoutes);
+app.route('/spareparts', sparepartsRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 

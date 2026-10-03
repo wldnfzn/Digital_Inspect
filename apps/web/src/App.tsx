@@ -12,6 +12,9 @@ import { UsersPage } from './pages/UsersPage';
 import { AuditLogPage } from './pages/AuditLogPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { TicketsPage } from './pages/TicketsPage';
+import { SparepartRequestsPage } from './pages/SparepartRequestsPage';
+import { UserRole } from '@digital-inspect/shared';
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -22,10 +25,15 @@ const AppRoutes = () => {
     return <LoginPage />;
   }
 
+  // Determine default route based on role
+  let defaultRoute = "/dashboard";
+  if (user.role === UserRole.SALES) defaultRoute = "/tickets";
+  if (user.role === UserRole.TECH_INVENTORY) defaultRoute = "/spareparts";
+
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to={defaultRoute} replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="assets" element={<AssetsPage />} />
@@ -35,6 +43,8 @@ const AppRoutes = () => {
         <Route path="users" element={<UsersPage />} />
         <Route path="audit-log" element={<AuditLogPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="tickets" element={<TicketsPage />} />
+        <Route path="spareparts" element={<SparepartRequestsPage />} />
       </Route>
     </Routes>
   );
