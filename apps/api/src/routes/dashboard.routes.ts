@@ -166,7 +166,7 @@ dashboardRoutes.get('/stats', async (c) => {
         })),
         activity_inspections: activityInspectionsRes.rows.map(row => ({
           date: row.date,
-          count: parseInt(row.count), total_hours: parseFloat(row.total_hours)
+          count: parseInt(row.count), total_minutes: parseFloat(row.total_minutes)
         })),
         active_tasks_trend: activeTasksRes.rows.map(row => ({
           date: row.date,

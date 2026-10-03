@@ -37,7 +37,7 @@ reportsRoutes.get('/', async (c) => {
         ba.asset_code,
         b.voltage_reading as score,
         CASE WHEN b.water_level = 'LOW' THEN 'ATTENTION' ELSE 'HEALTHY' END as status,
-        b.completed_at as date, b.additional_data->>'service_report_no' as report_code,
+        b.completed_at as date, b.full_report_data->>'service_report_no' as report_code,
         u.full_name as mechanic,
         c.name as customer
       FROM battery_service_reports b
