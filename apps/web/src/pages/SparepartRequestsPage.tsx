@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Badge } from '../components/ui';
-import { api } from '../lib/api';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
-import { UserRole, SparepartRequest } from '@digital-inspect/shared';
+import { UserRole } from '@digital-inspect/shared';
+import { api } from '../lib/api';
+import { Button, Modal, Badge, Input, Select, useToast } from '../components/ui';
 
 export const SparepartRequestsPage = () => {
   const { user } = useAuth();
-  const [requests, setRequests] = useState<SparepartRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Form state
+  const toast = useToast();
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     customer_id: '',
@@ -18,10 +18,10 @@ export const SparepartRequestsPage = () => {
     battery_id: '',
     ticket_id: '',
     urgency: 'NORMAL',
-    leader_notes: '',
-    items: [{ part_name: '', quantity: 1 }]
+    leader_notes: ''
   });
-
+  const [items, setItems] = useState([{ part_name: '', part_number: '', quantity: 1 }]);
+  
   const [customers, setCustomers] = useState<any[]>([]);
   const [assets, setAssets] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
@@ -36,7 +36,10 @@ export const SparepartRequestsPage = () => {
 
   useEffect(() => {
     if (formData.customer_id) {
-      api.get(`/assets?customer_id=${formData.customer_id}&type=${formData.asset_type}`).then(res => setAssets(res.data.data));
+      const endpoint = formData.asset_type === 'FORKLIFT' ? '/forklifts' : '/batteries';
+      api.get(endpoint).then(res => {
+        setAssets(res.data.data.filter((a:any) => a.customer_id === formData.customer_id));
+      });
     } else {
       setAssets([]);
     }
@@ -56,37 +59,51 @@ export const SparepartRequestsPage = () => {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/spareparts', formData);
+      await api.post('/spareparts', { ...formData, items });
       setShowForm(false);
+      toast('Berhasil membuat form pengadaan sparepart!', 'success');
       fetchRequests();
       setFormData({
-        customer_id: '', asset_type: 'FORKLIFT', forklift_id: '', battery_id: '', ticket_id: '', urgency: 'NORMAL', leader_notes: '', items: [{ part_name: '', quantity: 1 }]
+        customer_id: '', asset_type: 'FORKLIFT', forklift_id: '', battery_id: '', ticket_id: '', urgency: 'NORMAL', leader_notes: ''
       });
+      setItems([{ part_name: '', part_number: '', quantity: 1 }]);
     } catch (error) {
-      alert('Failed to create request');
+      toast('Gagal membuat pengadaan', 'error');
     }
   };
 
   const handleSubmit = async (id: string) => {
     try {
       await api.post(`/spareparts/${id}/submit`);
+      toast('Berhasil mengirim permintaan!', 'success');
       fetchRequests();
     } catch (e) {
-      alert('Failed to submit');
+      toast('Gagal mengirim permintaan', 'error');
     }
   };
-
+  
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [processData, setProcessData] = useState({ status: 'PROCESSING', inventory_notes: '' });
+  const [inventoryNotes, setInventoryNotes] = useState('');
 
   const handleProcess = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post(`/spareparts/${processingId}/process`, processData);
+      await api.post(`/spareparts/${processingId}/process`, { inventory_notes: inventoryNotes });
       setProcessingId(null);
+      toast('Status pengadaan diproses!', 'success');
       fetchRequests();
     } catch (e) {
-      alert('Failed to process');
+      toast('Gagal memproses', 'error');
+    }
+  };
+
+  const handleReady = async (id: string) => {
+    try {
+      await api.post(`/spareparts/${id}/ready`);
+      toast('Sparepart sudah siap!', 'success');
+      fetchRequests();
+    } catch (e) {
+      toast('Gagal mengubah status', 'error');
     }
   };
 
@@ -105,177 +122,183 @@ export const SparepartRequestsPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex flex-col">
-          <h1 className="text-2xl font-bold text-gray-900">Pengadaan Spare Part</h1>
-          <p className="text-sm text-gray-500 mt-1">Kelola permintaan spare part untuk service</p>
+          <h1 className="text-2xl font-bold text-gray-900">Pengadaan Sparepart</h1>
+          <p className="text-sm text-gray-500 mt-1">Permintaan sparepart dari Customer Care Leader ke Inventory</p>
         </div>
         <div className="flex gap-3">
           {(user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
-            <button onClick={() => setShowForm(!showForm)} className="btn-primary">
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Buat Permintaan
-            </button>
+            <Button variant="primary" icon="add_shopping_cart" onClick={() => setShowForm(true)}>
+              Request Sparepart
+            </Button>
           )}
         </div>
       </div>
 
-      {showForm && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold mb-4">Buat Permintaan Spare Part</h2>
-          <form onSubmit={handleCreate} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Tiket Terkait (Opsional)</label>
-                <select className="input-field" value={formData.ticket_id} onChange={e => {
-                  const tId = e.target.value;
-                  setFormData({...formData, ticket_id: tId});
-                  const t = tickets.find(x => x.id === tId);
-                  if (t) {
-                    setFormData(prev => ({...prev, customer_id: t.customer_id, asset_type: t.asset_type, forklift_id: t.forklift_id || '', battery_id: t.battery_id || ''}));
-                  }
-                }}>
-                  <option value="">Pilih Tiket...</option>
-                  {tickets.map(t => <option key={t.id} value={t.id}>{t.ticket_code}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Urgensi</label>
-                <select className="input-field" value={formData.urgency} onChange={e => setFormData({...formData, urgency: e.target.value as any})}>
-                  <option value="NORMAL">Normal</option>
-                  <option value="URGENT">Urgent</option>
-                </select>
-              </div>
+      <Modal open={showForm} onClose={() => setShowForm(false)}>
+        <Modal.Header onClose={() => setShowForm(false)}>Buat Permintaan Sparepart</Modal.Header>
+        <Modal.Body>
+          <form id="sparepart-form" onSubmit={handleCreate} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Select label="Tingkat Urgensi" value={formData.urgency} onChange={e => setFormData({...formData, urgency: e.target.value as any})}>
+                <option value="NORMAL">Normal</option>
+                <option value="URGENT">Urgent (Segera)</option>
+              </Select>
               
-              <div>
-                <label className="block text-sm font-medium mb-1">Customer (Opsional)</label>
-                <select className="input-field" value={formData.customer_id} onChange={e => setFormData({...formData, customer_id: e.target.value})}>
-                  <option value="">Pilih Customer...</option>
-                  {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1">Aset (Opsional)</label>
-                <select className="input-field" value={formData.asset_type === 'FORKLIFT' ? formData.forklift_id : formData.battery_id} 
+              <Select label="Kaitkan dengan Tiket (Opsional)" value={formData.ticket_id} onChange={e => setFormData({...formData, ticket_id: e.target.value})}>
+                <option value="">Tanpa Tiket</option>
+                {tickets.map(t => <option key={t.id} value={t.id}>{t.ticket_code} - {t.customer_name}</option>)}
+              </Select>
+            </div>
+
+            {!formData.ticket_id && (
+              <div className="grid grid-cols-2 gap-4 border border-gray-200 p-4 rounded-lg bg-gray-50">
+                <div className="col-span-2">
+                  <Select label="Customer *" required={!formData.ticket_id} value={formData.customer_id} onChange={e => setFormData({...formData, customer_id: e.target.value})}>
+                    <option value="">Pilih Customer...</option>
+                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </Select>
+                </div>
+                
+                <Select label="Tipe Aset" value={formData.asset_type} onChange={e => setFormData({...formData, asset_type: e.target.value as any, forklift_id: '', battery_id: ''})}>
+                  <option value="FORKLIFT">Forklift</option>
+                  <option value="BATTERY">Battery</option>
+                </Select>
+                
+                <Select label={`Pilih ${formData.asset_type === 'FORKLIFT' ? 'Forklift' : 'Battery'} *`} required={!formData.ticket_id} 
+                  value={formData.asset_type === 'FORKLIFT' ? formData.forklift_id : formData.battery_id} 
                   onChange={e => formData.asset_type === 'FORKLIFT' ? setFormData({...formData, forklift_id: e.target.value}) : setFormData({...formData, battery_id: e.target.value})}
                 >
                   <option value="">Pilih Aset...</option>
                   {assets.map(a => <option key={a.id} value={a.id}>{a.asset_code}</option>)}
-                </select>
+                </Select>
+              </div>
+            )}
+
+            <div className="mt-4">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-bold text-gray-700">Daftar Item Sparepart *</label>
+                <Button variant="ghost" size="sm" type="button" icon="add" onClick={() => setItems([...items, { part_name: '', part_number: '', quantity: 1 }])}>
+                  Tambah Item
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                {items.map((item, index) => (
+                  <div key={index} className="flex gap-2 items-start border border-gray-200 p-3 rounded-lg">
+                    <div className="flex-1 space-y-2">
+                      <Input placeholder="Nama Sparepart" required value={item.part_name} onChange={e => {
+                        const newItems = [...items];
+                        newItems[index].part_name = e.target.value;
+                        setItems(newItems);
+                      }} />
+                      <Input placeholder="Part Number (Opsional)" value={item.part_number} onChange={e => {
+                        const newItems = [...items];
+                        newItems[index].part_number = e.target.value;
+                        setItems(newItems);
+                      }} />
+                    </div>
+                    <div className="w-24">
+                      <Input type="number" min="1" required value={item.quantity} onChange={e => {
+                        const newItems = [...items];
+                        newItems[index].quantity = parseInt(e.target.value);
+                        setItems(newItems);
+                      }} />
+                    </div>
+                    {items.length > 1 && (
+                      <button type="button" onClick={() => {
+                        const newItems = items.filter((_, i) => i !== index);
+                        setItems(newItems);
+                      }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg mt-1">
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Daftar Barang</label>
-              {formData.items.map((item, idx) => (
-                <div key={idx} className="flex gap-2 mb-2">
-                  <input required placeholder="Nama part" className="input-field flex-1" value={item.part_name} onChange={e => {
-                    const newItems = [...formData.items]; newItems[idx].part_name = e.target.value; setFormData({...formData, items: newItems});
-                  }}/>
-                  <input type="number" min="1" className="input-field w-24" value={item.quantity} onChange={e => {
-                    const newItems = [...formData.items]; newItems[idx].quantity = parseInt(e.target.value); setFormData({...formData, items: newItems});
-                  }}/>
-                  {formData.items.length > 1 && (
-                    <button type="button" onClick={() => {
-                      const newItems = formData.items.filter((_, i) => i !== idx); setFormData({...formData, items: newItems});
-                    }} className="text-error px-2"><span className="material-symbols-outlined">delete</span></button>
-                  )}
-                </div>
-              ))}
-              <button type="button" onClick={() => setFormData({...formData, items: [...formData.items, { part_name: '', quantity: 1 }]})} className="text-sm text-primary font-medium hover:underline">+ Tambah Barang</button>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Catatan</label>
-              <textarea className="input-field h-16" value={formData.leader_notes} onChange={e => setFormData({...formData, leader_notes: e.target.value})}></textarea>
-            </div>
-            
-            <div className="flex gap-2 justify-end">
-              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Batal</button>
-              <button type="submit" className="btn-primary">Simpan Draft</button>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Tambahan (Opsional)</label>
+              <textarea className="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border" rows={2} value={formData.leader_notes} onChange={e => setFormData({...formData, leader_notes: e.target.value})}></textarea>
             </div>
           </form>
-        </div>
-      )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowForm(false)}>Batal</Button>
+          <Button variant="primary" type="submit" form="sparepart-form">Simpan Draft</Button>
+        </Modal.Footer>
+      </Modal>
 
-      {processingId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-md p-6">
-            <h2 className="text-lg font-bold mb-4">Proses Permintaan</h2>
-            <form onSubmit={handleProcess} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Status Ketersediaan</label>
-                <select className="input-field" value={processData.status} onChange={e => setProcessData({...processData, status: e.target.value})}>
-                  <option value="PROCESSING">Sedang Diproses (Cek Stok)</option>
-                  <option value="READY">Barang Tersedia (Siap Diambil)</option>
-                  <option value="REJECTED">Ditolak / Stok Kosong</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Catatan Inventory</label>
-                <textarea className="input-field h-24" value={processData.inventory_notes} onChange={e => setProcessData({...processData, inventory_notes: e.target.value})}></textarea>
-              </div>
-              <div className="flex gap-2 justify-end mt-4">
-                <button type="button" onClick={() => setProcessingId(null)} className="btn-secondary">Batal</button>
-                <button type="submit" className="btn-primary">Simpan Status</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal open={!!processingId} onClose={() => setProcessingId(null)}>
+        <Modal.Header onClose={() => setProcessingId(null)}>Proses Sparepart</Modal.Header>
+        <Modal.Body>
+          <form id="process-form" onSubmit={handleProcess} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Catatan Inventory (Estimasi ketersediaan dll)</label>
+              <textarea className="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border" rows={3} value={inventoryNotes} onChange={e => setInventoryNotes(e.target.value)}></textarea>
+            </div>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setProcessingId(null)}>Batal</Button>
+          <Button variant="primary" type="submit" form="process-form">Set Status: Processing</Button>
+        </Modal.Footer>
+      </Modal>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-8 text-center text-gray-500">Loading requests...</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-100">
-                <tr>
-                  <th className="px-4 py-3">Kode Request</th>
-                  <th className="px-4 py-3">Barang Diminta</th>
-                  <th className="px-4 py-3">Urgensi</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Keterangan</th>
-                  <th className="px-4 py-3">Aksi</th>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/80">
+                  <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kode Req</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Target</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status & Urgensi</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {requests.map(r => (
-                  <tr key={r.id} className="hover:bg-gray-50/50">
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{r.request_code}</div>
-                      {r.ticket_code && <div className="text-xs text-blue-600">{r.ticket_code}</div>}
+                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-5 py-4 text-sm font-medium text-gray-900">{r.request_code}</td>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-gray-900 text-sm">{r.ticket_code ? `Tiket: ${r.ticket_code}` : r.customer_name}</div>
+                      <div className="text-xs text-gray-500 mt-1">{r.ticket_code ? 'Berdasarkan Order' : `${r.forklift_code || r.battery_code} (${r.asset_type})`}</div>
                     </td>
-                    <td className="px-4 py-3">
-                      <ul className="list-disc list-inside text-xs">
-                        {r.items?.map((it:any) => <li key={it.id}>{it.quantity}x {it.part_name}</li>)}
+                    <td className="px-5 py-4">
+                      <div className="flex flex-col gap-2 items-start">
+                        {renderStatus(r.status)}
+                        {r.urgency === 'URGENT' && <Badge variant="error">Urgent</Badge>}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <ul className="text-sm text-gray-600 list-disc list-inside">
+                        {r.items?.map((item:any) => (
+                          <li key={item.id}>{item.quantity}x {item.part_name}</li>
+                        ))}
                       </ul>
                     </td>
-                    <td className="px-4 py-3">
-                      {r.urgency === 'URGENT' ? <Badge variant="error">Urgent</Badge> : <Badge variant="outline">Normal</Badge>}
-                    </td>
-                    <td className="px-4 py-3">{renderStatus(r.status)}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500 max-w-xs truncate">
-                      L: {r.leader_notes || '-'} <br/>
-                      I: {r.inventory_notes || '-'}
-                    </td>
-                    <td className="px-4 py-3 flex gap-2">
-                      {r.status === 'DRAFT' && (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
-                        <button onClick={() => handleSubmit(r.id)} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100">
-                          Kirim ke Tech
-                        </button>
-                      )}
-                      {(r.status === 'SUBMITTED' || r.status === 'PROCESSING') && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
-                        <button onClick={() => setProcessingId(r.id)} className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100">
-                          Proses Stok
-                        </button>
-                      )}
+                    <td className="px-5 py-4">
+                      <div className="flex gap-2">
+                        {r.status === 'DRAFT' && (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
+                          <Button variant="ghost" size="sm" icon="send" onClick={() => handleSubmit(r.id)}>Kirim</Button>
+                        )}
+                        {r.status === 'SUBMITTED' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
+                          <Button variant="ghost" size="sm" icon="inventory" onClick={() => setProcessingId(r.id)}>Proses</Button>
+                        )}
+                        {r.status === 'PROCESSING' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
+                          <Button variant="ghost" size="sm" icon="check_circle" onClick={() => handleReady(r.id)}>Selesai</Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
                 {requests.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">Tidak ada permintaan spare part</td>
+                    <td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-500">Belum ada data pengadaan sparepart.</td>
                   </tr>
                 )}
               </tbody>
