@@ -77,7 +77,7 @@ ticketsRoutes.post('/:id/submit', roleGuard(['SALES', 'SUPER_ADMIN', 'MANAGER'])
     
     const ticket = await sql`
       UPDATE service_tickets SET status = 'SUBMITTED', submitted_at = NOW() 
-      WHERE id = ${id} AND (created_by = ${user.userId} OR ${user.role} = 'SUPER_ADMIN') AND status = 'DRAFT'
+      WHERE id = ${id} AND (created_by = ${user.userId} OR ${user.role} = 'SUPER_ADMIN' OR ${user.role} = 'MANAGER') AND status = 'DRAFT'
       RETURNING *
     `;
     
