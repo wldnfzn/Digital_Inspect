@@ -73,6 +73,7 @@ export const SparepartRequestsPage = () => {
   };
 
   const handleSubmit = async (id: string) => {
+    setViewRequest(null);
     try {
       await api.post(`/spareparts/${id}/submit`);
       toast('Berhasil mengirim permintaan!', 'success');
@@ -83,9 +84,11 @@ export const SparepartRequestsPage = () => {
   };
   
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [viewRequest, setViewRequest] = useState<any>(null);
   const [inventoryNotes, setInventoryNotes] = useState('');
 
   const handleProcess = async (e: React.FormEvent) => {
+    setViewRequest(null);
     e.preventDefault();
     try {
       await api.post(`/spareparts/${processingId}/process`, { inventory_notes: inventoryNotes });
@@ -98,6 +101,7 @@ export const SparepartRequestsPage = () => {
   };
 
   const handleReady = async (id: string) => {
+    setViewRequest(null);
     try {
       await api.post(`/spareparts/${id}/ready`);
       toast('Sparepart sudah siap!', 'success');
@@ -229,6 +233,70 @@ export const SparepartRequestsPage = () => {
         </Modal.Footer>
       </Modal>
 
+      
+      <Modal open={!!viewRequest} onClose={() => setViewRequest(null)}>
+        <Modal.Header onClose={() => setViewRequest(null)}>Detail Permintaan: {viewRequest?.request_code}</Modal.Header>
+        <Modal.Body>
+          {viewRequest && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Customer / Target</p>
+                  <p className="text-sm font-medium text-gray-900">{viewRequest.ticket_code ? `Tiket: ${viewRequest.ticket_code}` : viewRequest.customer_name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Aset</p>
+                  <p className="text-sm font-medium text-gray-900">{viewRequest.ticket_code ? 'Berdasarkan Order' : `${viewRequest.forklift_code || viewRequest.battery_code} (${viewRequest.asset_type})`}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Status & Urgensi</p>
+                  <div className="mt-1 flex gap-2">
+                    {renderStatus(viewRequest.status)}
+                    {viewRequest.urgency === 'URGENT' && <Badge variant="error">Urgent</Badge>}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-xs text-gray-500 font-medium mb-1">Daftar Item</p>
+                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                  <ul className="text-sm text-gray-900 list-disc list-inside">
+                    {viewRequest.items?.map((item:any) => (
+                      <li key={item.id}>{item.quantity}x {item.part_name} {item.part_number ? `(${item.part_number})` : ''}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              
+              {viewRequest.leader_notes && (
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Catatan Leader</p>
+                  <div className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg mt-1 border border-gray-100 whitespace-pre-wrap">{viewRequest.leader_notes}</div>
+                </div>
+              )}
+              {viewRequest.inventory_notes && (
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Catatan Inventory</p>
+                  <div className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg mt-1 border border-gray-100 whitespace-pre-wrap">{viewRequest.inventory_notes}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setViewRequest(null)}>Tutup</Button>
+          {viewRequest?.status === 'DRAFT' && (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
+            <Button variant="primary" icon="send" onClick={() => handleSubmit(viewRequest.id)}>Kirim Permintaan</Button>
+          )}
+          {viewRequest?.status === 'SUBMITTED' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
+            <Button variant="primary" icon="inventory" onClick={() => { setViewRequest(null); setProcessingId(viewRequest.id); }}>Proses Pengadaan</Button>
+          )}
+          {viewRequest?.status === 'PROCESSING' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
+            <Button variant="primary" icon="check_circle" onClick={() => handleReady(viewRequest.id)}>Tandai Selesai</Button>
+          )}
+        </Modal.Footer>
+      </Modal>
+
       <Modal open={!!processingId} onClose={() => setProcessingId(null)}>
         <Modal.Header onClose={() => setProcessingId(null)}>Proses Sparepart</Modal.Header>
         <Modal.Body>
@@ -283,15 +351,7 @@ export const SparepartRequestsPage = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
-                        {r.status === 'DRAFT' && (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
-                          <Button variant="ghost" size="sm" icon="send" onClick={() => handleSubmit(r.id)}>Kirim</Button>
-                        )}
-                        {r.status === 'SUBMITTED' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
-                          <Button variant="ghost" size="sm" icon="inventory" onClick={() => setProcessingId(r.id)}>Proses</Button>
-                        )}
-                        {r.status === 'PROCESSING' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
-                          <Button variant="ghost" size="sm" icon="check_circle" onClick={() => handleReady(r.id)}>Selesai</Button>
-                        )}
+                        <Button variant="ghost" size="sm" icon="visibility" onClick={() => setViewRequest(r)}>Detail</Button>
                       </div>
                     </td>
                   </tr>
