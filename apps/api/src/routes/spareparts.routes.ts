@@ -10,13 +10,16 @@ sparepartsRoutes.use('*', authMiddleware);
 sparepartsRoutes.get('/', async (c) => {
   try {
     const requests = await sql`
-      SELECT s.*, c.name as customer_name, f.asset_code as forklift_code, b.asset_code as battery_code,
+      SELECT s.*, COALESCE(c.name, tc.name) as customer_name, COALESCE(f.asset_code, tf.asset_code) as forklift_code, COALESCE(b.asset_code, tb.asset_code) as battery_code, COALESCE(s.asset_type, t.asset_type) as asset_type,
              u.full_name as created_by_name, p.full_name as processed_by_name, t.ticket_code
       FROM sparepart_requests s
       LEFT JOIN customers c ON s.customer_id = c.id
       LEFT JOIN forklifts f ON s.forklift_id = f.id
       LEFT JOIN batteries b ON s.battery_id = b.id
       LEFT JOIN service_tickets t ON s.ticket_id = t.id
+        LEFT JOIN customers tc ON t.customer_id = tc.id
+        LEFT JOIN forklifts tf ON t.forklift_id = tf.id
+        LEFT JOIN batteries tb ON t.battery_id = tb.id
       JOIN users u ON s.created_by = u.id
       LEFT JOIN users p ON s.processed_by = p.id
       ORDER BY s.created_at DESC

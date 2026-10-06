@@ -289,7 +289,7 @@ export const SparepartRequestsPage = () => {
             <Button variant="primary" icon="send" onClick={() => handleSubmit(viewRequest.id)}>Kirim Permintaan</Button>
           )}
           {viewRequest?.status === 'SUBMITTED' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
-            <Button variant="primary" icon="inventory" onClick={() => { setViewRequest(null); setProcessingId(viewRequest.id); }}>Proses Pengadaan</Button>
+            <Button variant="primary" icon="inventory" onClick={() => { setViewRequest(null); setProcessingId(viewRequest.id); }}>Approved</Button>
           )}
           {viewRequest?.status === 'PROCESSING' && (user?.role === UserRole.TECH_INVENTORY || user?.role === UserRole.SUPER_ADMIN) && (
             <Button variant="primary" icon="check_circle" onClick={() => handleReady(viewRequest.id)}>Tandai Selesai</Button>
