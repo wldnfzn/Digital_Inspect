@@ -31,7 +31,7 @@ export const TicketsPage = () => {
       api.get('/customers').then(res => setCustomers(res.data.data));
     }
     if (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) {
-      api.get('/users').then(res => setMechanics(res.data.data.filter((u:any) => u.role === UserRole.MECHANIC)));
+      api.get('/users/mechanics').then(res => setMechanics(res.data.data));
     }
   }, []);
 
