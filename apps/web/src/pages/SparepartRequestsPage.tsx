@@ -6,7 +6,7 @@ import { Button, Modal, Badge, Input, Select, useToast } from '../components/ui'
 
 export const SparepartRequestsPage = () => {
   const { user } = useAuth();
-  const toast = useToast();
+  const { toast } = useToast();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   

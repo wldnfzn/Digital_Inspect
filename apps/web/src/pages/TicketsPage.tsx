@@ -6,7 +6,7 @@ import { Button, Modal, Badge, Input, Select, useToast } from '../components/ui'
 
 export const TicketsPage = () => {
   const { user } = useAuth();
-  const toast = useToast();
+  const { toast } = useToast();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -73,6 +73,7 @@ export const TicketsPage = () => {
   };
 
   const handleSubmit = async (id: string) => {
+    setViewTicket(null);
     try {
       await api.post(`/tickets/${id}/submit`);
       toast('Berhasil submit tiket!', 'success');
@@ -84,6 +85,7 @@ export const TicketsPage = () => {
 
   const [assigningTicket, setAssigningTicket] = useState<string | null>(null);
   const [assignData, setAssignData] = useState({ mechanic_id: '', leader_notes: '' });
+  const [viewTicket, setViewTicket] = useState<any>(null);
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,6 +169,57 @@ export const TicketsPage = () => {
         </Modal.Footer>
       </Modal>
 
+      
+      <Modal open={!!viewTicket} onClose={() => setViewTicket(null)}>
+        <Modal.Header onClose={() => setViewTicket(null)}>Detail Tiket: {viewTicket?.ticket_code}</Modal.Header>
+        <Modal.Body>
+          {viewTicket && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Customer</p>
+                  <p className="text-sm font-medium text-gray-900">{viewTicket.customer_name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Aset</p>
+                  <p className="text-sm font-medium text-gray-900">{viewTicket.forklift_code || viewTicket.battery_code} ({viewTicket.asset_type})</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Tipe Keluhan</p>
+                  <p className="text-sm font-medium text-gray-900">{viewTicket.issue_type.replace('_', ' ')}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Status</p>
+                  <div className="mt-1">{renderStatus(viewTicket.status)}</div>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium">Deskripsi Keluhan</p>
+                <div className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg mt-1 border border-gray-100 whitespace-pre-wrap">{viewTicket.issue_description}</div>
+              </div>
+              {viewTicket.sales_notes && (
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Catatan Tambahan</p>
+                  <div className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg mt-1 border border-gray-100 whitespace-pre-wrap">{viewTicket.sales_notes}</div>
+                </div>
+              )}
+              {viewTicket.mechanic_name && (
+                <div>
+                  <p className="text-xs text-gray-500 font-medium">Mekanik</p>
+                  <div className="text-sm font-medium text-gray-900">{viewTicket.mechanic_name}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setViewTicket(null)}>Tutup</Button>
+          {viewTicket?.status === 'DRAFT' && (user?.role === UserRole.SALES || user?.role === UserRole.SUPER_ADMIN || user?.role === UserRole.MANAGER) && (
+            <Button variant="primary" onClick={() => handleSubmit(viewTicket.id)}>Submit Tiket</Button>
+          )}
+        </Modal.Footer>
+      </Modal>
+
       <Modal open={!!assigningTicket} onClose={() => setAssigningTicket(null)}>
         <Modal.Header onClose={() => setAssigningTicket(null)}>Tugaskan Mekanik</Modal.Header>
         <Modal.Body>
@@ -219,9 +272,7 @@ export const TicketsPage = () => {
                     <td className="px-5 py-4 text-sm text-gray-600">{t.mechanic_name || '-'}</td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
-                        {t.status === 'DRAFT' && (user?.role === UserRole.SALES || user?.role === UserRole.SUPER_ADMIN || user?.role === UserRole.MANAGER) && (
-                          <Button variant="ghost" size="sm" icon="send" onClick={() => handleSubmit(t.id)}>Submit</Button>
-                        )}
+                        <Button variant="ghost" size="sm" icon="visibility" onClick={() => setViewTicket(t)}>Detail</Button>
                         {t.status === 'SUBMITTED' && (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (
                           <Button variant="ghost" size="sm" icon="assignment_ind" onClick={() => setAssigningTicket(t.id)}>Assign</Button>
                         )}
