@@ -246,7 +246,7 @@ export const SparepartRequestsPage = () => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-medium">Aset</p>
-                  <p className="text-sm font-medium text-gray-900">{viewRequest.ticket_code ? 'Berdasarkan Order' : `${viewRequest.forklift_code || viewRequest.battery_code} (${viewRequest.asset_type})`}</p>
+                  <p className="text-sm font-medium text-gray-900">{viewRequest.forklift_code || viewRequest.battery_code || '-'} ({viewRequest.asset_type || '-'})</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-medium">Status & Urgensi</p>
@@ -334,7 +334,7 @@ export const SparepartRequestsPage = () => {
                     <td className="px-5 py-4 text-sm font-medium text-gray-900">{r.request_code}</td>
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-900 text-sm">{r.ticket_code ? `Tiket: ${r.ticket_code}` : r.customer_name}</div>
-                      <div className="text-xs text-gray-500 mt-1">{r.ticket_code ? 'Berdasarkan Order' : `${r.forklift_code || r.battery_code} (${r.asset_type})`}</div>
+                      <div className="text-xs text-gray-500 mt-1">{r.forklift_code || r.battery_code || '-'} ({r.asset_type || '-'})</div>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex flex-col gap-2 items-start">
