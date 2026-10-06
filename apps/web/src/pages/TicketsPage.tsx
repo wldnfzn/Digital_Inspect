@@ -116,7 +116,7 @@ export const TicketsPage = () => {
           <p className="text-sm text-gray-500 mt-1">Kelola keluhan service dan inspeksi dadakan dari pelanggan</p>
         </div>
         <div className="flex gap-3">
-          {(user?.role === UserRole.SALES || user?.role === UserRole.SUPER_ADMIN) && (
+          {(user?.role === UserRole.SALES || user?.role === UserRole.SUPER_ADMIN || user?.role === UserRole.MANAGER) && (
             <Button variant="primary" icon="add" onClick={() => setShowForm(true)}>
               Buat Tiket Baru
             </Button>
@@ -219,7 +219,7 @@ export const TicketsPage = () => {
                     <td className="px-5 py-4 text-sm text-gray-600">{t.mechanic_name || '-'}</td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
-                        {t.status === 'DRAFT' && (user?.role === UserRole.SALES || user?.role === UserRole.SUPER_ADMIN) && (
+                        {t.status === 'DRAFT' && (user?.role === UserRole.SALES || user?.role === UserRole.SUPER_ADMIN || user?.role === UserRole.MANAGER) && (
                           <Button variant="ghost" size="sm" icon="send" onClick={() => handleSubmit(t.id)}>Submit</Button>
                         )}
                         {t.status === 'SUBMITTED' && (user?.role === UserRole.MANAGER || user?.role === UserRole.SUPER_ADMIN) && (

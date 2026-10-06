@@ -70,7 +70,7 @@ ticketsRoutes.post('/', roleGuard(['SALES', 'SUPER_ADMIN', 'MANAGER']), async (c
 });
 
 // POST /tickets/:id/submit
-ticketsRoutes.post('/:id/submit', roleGuard(['SALES', 'SUPER_ADMIN']), async (c) => {
+ticketsRoutes.post('/:id/submit', roleGuard(['SALES', 'SUPER_ADMIN', 'MANAGER']), async (c) => {
   try {
     const user = c.get('user');
     const id = c.req.param('id');
